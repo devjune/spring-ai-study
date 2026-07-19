@@ -1,45 +1,69 @@
 # 스터디 문서 방향 & 결정 로그
 
-`spring-ai-study.md`(청중용 발표 자료)를 만들며 내린 결정과 그 근거를 남긴다.
-발표 문서 본문에는 들어가지 않는 "왜 이렇게 썼나"의 기록.
+`spring-ai-study.md`(학습 자료 본문)를 만들며 내린 결정과 그 근거를 남긴다.
+본문에는 들어가지 않는 "왜 이렇게 썼나"의 기록.
 
 ---
 
 ## 목표
 
-- 팀 내 AI 스터디 발표. 약 20분 + 라이브 데모.
-- 대상: 시니어 백엔드 개발자 (전원).
-- 주제: Spring AI.
+- 팀 내 AI 스터디 **학습 자료** (발표 겸 위키 포팅용).
+- 대상: Java/Spring 백엔드 개발자 — **Spring AI를 처음 접하는 사람 포함**.
+- 주제: Spring AI **2.0**.
+- 목표 수준: 읽고 나면 (1) "Spring AI로 무엇을 할 수 있나"에 정확히 답하고, (2) 직접 간단한 AI 기능을 붙일 수 있을 것.
 - 최종 산출물은 위키로 포팅.
+
+## 컨셉
+
+Spring AI 2.0을 기준으로 **처음부터 제대로 가르치는 학습 문서**. 1.x는 초반에 간단히 소개하고, 본문은 2.0 기준으로 상세히 설명한다. 처음 접하는 사람도 온보딩(시작하기)부터 따라와 직접 만들 수 있게 하는 것이 핵심. 관통 축은 **"라이브러리에서 에이전트 플랫폼으로의 진화"**.
+
+> 방향 전환 이력: 초기엔 "예전에 1.0 봤고 2.0으로 다시 본다"는 발표 서사(3장: recap→진화→트렌드)였으나, **처음 접하는 사람까지 포함하는 학습 자료**로 전환하며 폐기. 1인칭 회고 톤도 제거.
 
 ## 결정 사항
 
 | 항목 | 결정 | 근거 |
 | --- | --- | --- |
-| 구성 | Q&A(질문 → 답변) 형식 | 시니어 청중은 "왜"에 반응한다. 질문을 따라가며 핵심을 짚는 구조가 설득력이 높다. |
-| 범위 | 핵심 4개 주제만 (ChatClient / Structured Output / Tool Calling / RAG) | 기능을 늘리기보다 관통하는 이야기를 깔끔하게. 부가 기능 나열 배제. |
-| 사실성 | 팩트 기반만. 추측/추론 배제 | 모든 기술 서술을 공식 Spring AI 문서·블로그와 대조해 검증. 해석적 프레이밍(LangChain 비유, IoC, 위임 vs 통제)은 "발표용 관점"으로만 사용하고 사실과 구분. |
-| 톤 | 평서문 "~한다 / ~할 수 있다". 존댓말 X, 친구톤 X | 청중이 전원 시니어라 친구톤은 부적절. 존대는 과함. 간결한 평서문이 정보 밀도가 높다. |
-| 형식 | 마크다운 + mermaid 다이어그램 | 위키 포팅을 고려. 표준 마크다운과 mermaid만 사용(외부 이미지 X). |
-| 데모 | 인라인 코드 최소화 + "📺 라이브 데모" 마커 | 코드를 다 싣기보다 실제 동작은 라이브로. 데모는 Claude Code로 진행 예정. |
-| 기준 버전 | Spring AI 1.1.x (현행 GA, 최신 패치 1.1.8 / 2026-06) | "2025-11 GA 표기는 늦다"는 판단. 현행 패치 기준으로 통일. |
-| 부록 | 버전 히스토리 부록은 최종적으로 제거 | 도약 서사를 표/타임라인으로 여러 번 시도했으나 본문 핵심 가독성을 해쳐 삭제. 본문에 집중. |
+| 구성 | 온보딩 → 상세 → 실습 (들어가며 · 무엇을·누가 · 시작하기 · 핵심 기능 8개 · 직접 만들어 보기 · 1.x→2.0 · 정리) | 처음 접하는 사람도 따라오도록 시작 설정부터. 각 기능은 개념→예제→(1.x 대비 변화). |
+| 범위 | ChatClient·Structured Output·ChatMemory·Tool Calling·RAG·ToolSearch·MCP·관측성 + 조합 예제(사내 문서 Q&A 에이전트) | 처음 접하는 사람이 "만들 수 있게" 필요한 기능을 폭넓게. 얕더라도 빠짐없이. |
+| MCP 비중 | **크게** (2.0 핵심) | 2.0의 가장 큰 방향 전환. 애노테이션 예제 + 조합 예제에 포함. |
+| 사실성 | 팩트 기반만. 추측/추론 배제 | 모든 기술 서술을 공식 2.0 레퍼런스·블로그와 대조. 해석적 프레이밍(LangChain 비유, IoC, 위임 vs 통제)은 "관점"으로만 사용하고 사실과 구분. |
+| 톤 | 존댓말 "~합니다"체 + **위키 문체(중립·서술)** | 논설·구어 연결어("여기서부터 본론"…)와 1인칭("우리/내") 제거. 볼드 TL;DR + before/after 표는 유지. (평서문→존댓말→위키 중립화 순으로 전환) |
+| 형식 | 마크다운 + mermaid 다이어그램 | 위키 포팅 고려. 표준 마크다운·mermaid만(외부 이미지 X). |
+| 실습 | 본문에 코드 예제 충실히 + 끝에 "직접 만들어 보기" 조합 예제 | 학습 자료로 전환하며 "데모 몰아서" 규율은 완화. 코드가 곧 실습 자료. |
+| 기준 버전 | **Spring AI 2.0.0 GA (2026-06-12)** | 2.0 기준 학습 자료. |
+| 버전 진화 | 1.x→2.0 변화는 각 기능 옆 + 별도 요약 표 | 학습 자료라 "진화 서사"보다 "각 기능이 뭐고 1.x 대비 뭐가 달라졌나"가 중심. 끝에 "1.x→2.0 한눈에" 표. |
 
 ## 관통하는 두 테마
 
-발표 전체를 꿰는 축. 개별 기능 설명이 여기로 수렴하도록 배치.
+발표 전체를 꿰는 축. 개별 기능 설명이 여기로 수렴하도록 배치. 2.0의 새 기능(ToolSearch·MCP 등)도 결국 이 두 테마로 수렴한다.
 
-- **이식성(Portability)** — 벤더나 DB를 바꿔도 코드는 유지된다. `JdbcTemplate`이 DB 벤더를 추상화하던 발상.
-- **위임 vs 통제** — LLM에 흐름을 얼마나 맡기고, 어디에 가드레일을 칠 것인가.
+- **이식성(Portability)** — 벤더/DB 교체를 넘어, 2.0에서는 **도구·에이전트 상호운용(MCP)** 으로 확장.
+- **위임 vs 통제** — LLM에 흐름을 얼마나 맡기고, 어디에 가드레일을 칠 것인가. 에이전트가 커질수록(ToolSearch·MCP) 더 중요해짐.
 
 ## 검증된 사실 (공식 출처 대조 완료)
 
-- Spring AI 1.0 GA: 2025-05-20 / 1.1 GA: 2025-11-12 / 최신 패치 1.1.8·1.0.9: 2026-06-12 / 2.0.0-M7 마일스톤: 2026-05-23 (GA 아님).
-- Anthropic 스타터: `spring-ai-starter-model-anthropic`, 기본 모델 `claude-sonnet-4-5`.
-- `StructuredOutputValidationAdvisor`, `useProviderStructuredOutput()`/`validateSchema()`, `@Tool`/`.tools()`/`ToolCallingAdvisor`, `QuestionAnswerAdvisor`, `VectorStore` 구현체(pgvector·Redis·Chroma 등), Micrometer 연동 — 모두 공식 문서 확인.
+- **Spring AI 2.0.0 GA: 2026-06-12 릴리스**(공식 블로그, 작성자 Christian Tzolov). 기능은 `docs.spring.io/spring-ai/reference/2.0-SNAPSHOT/`로 교차검증.
+- 에이전트 이동 배경(블로그 명시): ① 1.x는 tool-calling 루프가 모델 구현 내부에 숨어 hook/wrap/교체 불가 → advisor 체인의 1급 컴포넌트로 승격, ② 유입 PR의 다수가 coding agent 관련, ③ "MCP가 AI 통합의 공통 프로토콜로 부상". (배경: MCP는 Anthropic이 2024 공개 후 업계 표준화 — 블로그 밖 일반 사실, 컷오프 2026-01)
+- 2.0 기반: Spring Boot 4.0/4.1 + Framework 7, Jackson 3, JSpecify 널 안정성.
+- Tool Calling: `FunctionCallback` 제거 → `ToolCallback`/`FunctionToolCallback` 일원화. `ToolCallingAdvisor` 1급 컴포넌트 + 자동 등록. `internalToolExecutionEnabled` 제거.
+- `ToolSearchToolCallingAdvisor`: `spring.ai.chat.client.tool-search-advisor.enabled`, 인덱스 regex(기본)/lucene/vector.
+- MCP: 서버 애노테이션 `@McpTool`/`@McpResource`/`@McpPrompt`/`@McpComplete`, 클라이언트 `@McpSampling`/`@McpElicitation` 등. 전송(webflux/webmvc)이 MCP Java SDK→Spring AI로 편입(그룹 id 변경, breaking). 기본 전송 Streamable HTTP.
+- 기본기(ChatClient/`.entity()`/`StructuredOutputValidationAdvisor`/`QuestionAnswerAdvisor`/VectorStore)는 2.0에서도 유지.
+- 폐기된 서술: 1.x 시절 자료의 "2.0은 아직 마일스톤(2.0.0-M7), GA 아님" — 2.0 GA 출시로 무효.
+- Anthropic 스타터: `spring-ai-starter-model-anthropic`. 이 자료의 예제는 `spring.ai.anthropic.chat.options.model`에 `claude-sonnet-4-5`를 명시 지정(스타터 기본값과 무관하게 동작 보장).
+
+## 발표·실습 운영
+
+학습 자료로 전환하며 기존 규율(20분 엄수, "데모 몰아서")은 완화했다. 발표 시에는 이 문서에서 필요한 섹션을 발췌해 쓴다.
+
+- 발표용 발췌 추천: 들어가며 → 무엇을·누가 → 시작하기(라이브) → Tool Calling → MCP → 직접 만들어 보기.
+- "직접 만들어 보기"(사내 문서 Q&A 에이전트)를 라이브 코딩 클라이맥스로 활용 가능. 셋업 리스크가 크니 사전 리허설 권장.
+- 데모는 실제 Spring Boot 4 + Spring AI 2.0(Anthropic) 프로젝트로 준비(별도 진행, ANTHROPIC_API_KEY 필요).
 
 ## 참고
 
-- Spring AI Reference: https://docs.spring.io/spring-ai/reference/
+- Spring AI Reference (2.0): https://docs.spring.io/spring-ai/reference/2.0-SNAPSHOT/
+- 2.0 GA 블로그: https://spring.io/blog/2026/06/12/spring-ai-2-0-0-GA-available-now
+- 2.0 업그레이드 노트: https://docs.spring.io/spring-ai/reference/upgrade-notes.html#upgrading-to-2-0-0
 - 1.0 GA 블로그: https://spring.io/blog/2025/05/20/spring-ai-1-0-GA-released/
 - 1.1 GA 블로그: https://spring.io/blog/2025/11/12/spring-ai-1-1-GA-released/
