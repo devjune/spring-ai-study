@@ -58,7 +58,7 @@
     <h2>1. 기본 채팅 <span class="tag">ChatClient</span></h2>
     <p class="desc">가장 기본. LLM에 메시지를 보내고 텍스트 응답을 받습니다.</p>
     <pre class="code">chatClient.prompt().user(msg).call().content()</pre>
-    <textarea id="basic-in">자바가 뭐야? 한 문장으로.</textarea>
+    <textarea id="basic-in">타입스크립트가 뭐야? 한 문장으로.</textarea>
     <button onclick="post('/api/basic/chat', {message: val('basic-in')}, 'basic-out', 'reply')">전송</button>
     <div class="out" id="basic-out"></div>
   </section>
