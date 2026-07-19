@@ -377,15 +377,15 @@ fun supportAgent(
 
 ## 1.x → 2.0 한눈에
 
-| 영역 | 1.x | 2.0 |
-| --- | --- | --- |
-| 런타임 | Spring Boot 3 | **Spring Boot 4 / Framework 7 / Jackson 3** |
-| Tool Calling | 등록 방식 혼재 | `ToolCallback` 일원화, Advisor 자동 |
-| 대규모 도구 | — | **ToolSearch** (점진적 노출) |
-| MCP | SDK 별도 | **Spring AI 1급 편입** (`@McpTool`, 전송 내장) |
-| 대화 메모리 | 빌더에 conversationId | 호출 시점 `CONVERSATION_ID` 필수 |
-| 토큰·캐시 지표 | 벤더별 제각각 | 통합 `Usage` API |
-| 프로바이더 | 변형 다수 | 정리 (예: OpenAI 3종 → 1종) |
+| 영역           | 1.x                | 2.0                                         |
+| ------------ | ------------------ | ------------------------------------------- |
+| 런타임          | Spring Boot 3      | **Spring Boot 4 / Framework 7 / Jackson 3** |
+| Tool Calling | 등록 방식 혼재           | `ToolCallback` 일원화, Advisor 자동              |
+| 대규모 도구       | —                  | **ToolSearch** (점진적 노출)                     |
+| MCP          | SDK 별도             | **Spring AI 1급 편입** (`@McpTool`, 전송 내장)     |
+| 대화 메모리       | 빌더에 conversationId | 호출 시점 `CONVERSATION_ID` 필수                  |
+| 토큰·캐시 지표     | 벤더별 제각각            | 통합 `Usage` API                              |
+| 프로바이더        | 변형 다수              | 정리 (예: OpenAI 3종 → 1종)                      |
 
 Spring AI는 **"LLM 호출 라이브러리"에서 "에이전트 플랫폼"으로** 이동했습니다.
 
