@@ -143,10 +143,11 @@
 
   <!-- 9 -->
   <section>
-    <h2>9. 관측성 <span class="tag">Usage</span></h2>
-    <p class="desc">응답 메타데이터에서 토큰 사용량을 읽습니다(비용·모니터링).</p>
+    <h2>9. 토큰 사용량 <span class="tag">관측성 · Usage</span></h2>
+    <p class="desc">LLM은 <b>토큰 단위로 과금</b>됩니다. 그래서 호출이 토큰을 얼마나 썼는지 추적하는 게 중요합니다. 응답의 <code>content()</code> 대신 <code>chatResponse()</code>로 받으면 메타데이터에서 토큰 수를 읽을 수 있습니다(운영에선 Micrometer로 대시보드화).</p>
     <pre class="code">response.metadata.usage.totalTokens</pre>
-    <textarea id="obs-in">안녕이라고만 답해.</textarea>
+    <p class="desc">전송하면 응답과 함께 <b>promptTokens</b>(입력), <b>completionTokens</b>(출력), <b>totalTokens</b>(합계)가 표시됩니다.</p>
+    <textarea id="obs-in">스프링이 뭔지 한 문장으로 설명해줘.</textarea>
     <button onclick="postJson('/api/observability/chat', {message: val('obs-in')}, 'obs-out')">전송</button>
     <div class="out" id="obs-out"></div>
   </section>
