@@ -165,6 +165,20 @@ MessageWindowChatMemory.builder()      // 정책: 최근 N개만 유지
 @McpTool(name="echo") fun echo(message) = message</pre>
     <div class="out">MCP 엔드포인트로 tools/list 하면 add, echo 가 노출됩니다.</div>
   </section>
+
+  <!-- 11 -->
+  <section>
+    <h2>11. 커스텀 Advisor <span class="tag">BaseAdvisor</span></h2>
+    <p class="desc">앞의 RAG·메모리·ToolSearch가 모두 <b>Advisor</b>였습니다. 직접 만들 수도 있습니다. <code>BaseAdvisor</code>를 구현하고 <code>before</code>(요청)/<code>after</code>(응답)만 채우면 됩니다 — <code>HandlerInterceptor</code>와 같은 자리입니다.</p>
+    <p class="desc">여기서는 <b>카드번호를 마스킹해서 LLM에 보내는 가드레일</b>입니다. 아래 <b>모델이 실제로 받은 문장</b>을 보면 번호가 가려진 채 나간 것을 확인할 수 있습니다.</p>
+    <pre class="code">class PiiMaskingAdvisor : BaseAdvisor {
+    override fun before(req, chain) = // 카드번호 마스킹 후 요청 교체
+    override fun after(res, chain) = res
+}</pre>
+    <textarea id="adv-in">내 카드번호는 4111-1111-1111-1111 인데 안전해?</textarea>
+    <button onclick="postJson('/api/advisor/chat', {message: val('adv-in')}, 'adv-out')">전송</button>
+    <div class="out" id="adv-out"></div>
+  </section>
 </main>
 
 <script>

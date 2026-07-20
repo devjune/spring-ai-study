@@ -34,7 +34,8 @@ com.example.demo
 ├── rag/            QuestionAnswerAdvisor + VectorStore 시드
 ├── toolsearch/     ToolSearchToolCallingAdvisor (ManyTools)
 ├── mcp/            @McpTool — 이 앱을 MCP 서버로 노출
-└── observability/  토큰 사용량 메타데이터
+├── observability/  토큰 사용량 메타데이터
+└── advisor/        커스텀 Advisor (BaseAdvisor) — 카드번호 마스킹 가드레일
 ```
 
 ## 데모 ↔ 문서 예제 매핑
@@ -48,9 +49,10 @@ com.example.demo
 | 5. 대화 메모리 | `POST /api/memory/chat` | `MessageChatMemoryAdvisor` |
 | 6. Tool Calling | `POST /api/tool/chat` | `@Tool` |
 | 7. RAG | `POST /api/rag/chat` | `QuestionAnswerAdvisor` + `VectorStore` |
-| 8. 관측성 | `POST /api/observability/chat` | 토큰 사용량 메타데이터 |
-| ToolSearch | `POST /api/toolsearch/chat` | `ToolSearchToolCallingAdvisor` |
-| MCP | `@McpTool`(add·echo) — MCP 서버로 노출 | `@McpTool` |
+| 8. ToolSearch | `POST /api/toolsearch/chat` | `ToolSearchToolCallingAdvisor` |
+| 9. 관측성 | `POST /api/observability/chat` | 토큰 사용량 메타데이터 |
+| 10. MCP | `@McpTool`(add·echo) — MCP 서버로 노출 | `@McpTool` |
+| 11. 커스텀 Advisor | `POST /api/advisor/chat` | `BaseAdvisor` (before/after) |
 
 ## 구현 메모
 

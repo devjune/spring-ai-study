@@ -15,7 +15,7 @@ data class UsageReply(
 /**
  * 관측성 — 응답 메타데이터에서 토큰 사용량을 읽는다.
  * content() 대신 chatResponse() 로 받아야 메타데이터에 접근할 수 있다.
- * 문서 "핵심 기능 8. 관측성" 예제에 대응.
+ * 문서 "핵심 기능 9. 관측성" 예제에 대응.
  */
 @RestController
 @RequestMapping("/api/observability")

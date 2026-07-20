@@ -380,7 +380,61 @@ class CalculatorTools {
 
 > 1.0의 이식성은 "벤더를 바꿔도 코드 유지"였습니다. MCP는 이식성을 **"도구와 에이전트가 벤더·언어를 넘어 연결된다"** 로 확장합니다. 한 서비스가 다른 에이전트의 도구가 되고, 반대로 다른 도구가 그 에이전트의 수단이 됩니다.
 
-## 8. 관측성
+## 8. Advisor 직접 만들기
+
+**RAG, 대화 메모리, ToolSearch는 모두 Advisor였습니다.** `QuestionAnswerAdvisor`, `MessageChatMemoryAdvisor`, `ToolSearchToolCallingAdvisor` — 앞에서 `.advisors(...)`로 붙인 것들이 전부 같은 확장점입니다. 직접 만들 수도 있습니다.
+
+Advisor는 `ChatClient` 호출을 가로채는 체인입니다. **서블릿 필터나 `HandlerInterceptor`와 같은 자리**로, 요청이 모델로 나가기 전과 응답이 돌아온 후에 개입합니다.
+
+```mermaid
+graph LR
+    App["ChatClient 호출"] --> A1["Advisor 1<br/>before"]
+    A1 --> A2["Advisor 2<br/>before"]
+    A2 --> LLM["LLM"]
+    LLM --> B2["Advisor 2<br/>after"]
+    B2 --> B1["Advisor 1<br/>after"]
+    B1 --> Res["응답"]
+```
+
+`BaseAdvisor`를 구현하면 `before`/`after` 두 개만 채우면 됩니다.
+
+```kotlin
+class PiiMaskingAdvisor(private val order: Int = 0) : BaseAdvisor {
+
+    // 모델로 나가기 전 — 카드번호를 마스킹한다
+    override fun before(request: ChatClientRequest, chain: AdvisorChain): ChatClientRequest {
+        val original = request.prompt().userMessage.text ?: return request
+        val masked = CARD_NUMBER.replace(original, "****-****-****-****")
+        if (masked == original) return request
+
+        return request.mutate()
+            .prompt(request.prompt().augmentUserMessage { it.mutate().text(masked).build() })
+            .context(MASKED_PROMPT, masked)   // 호출부가 확인할 수 있게 기록
+            .build()
+    }
+
+    // 모델에서 돌아온 후 — 여기선 통과
+    override fun after(response: ChatClientResponse, chain: AdvisorChain) = response
+
+    override fun getOrder(): Int = order
+}
+```
+
+```kotlin
+chatClient.prompt()
+    .advisors(PiiMaskingAdvisor(order = 0), SimpleLoggerAdvisor.builder().build())
+    .user(message)
+    .call()
+    .chatClientResponse()
+```
+
+- **실행 순서** — `getOrder()`가 작은 쪽이 먼저 `before`를 실행합니다. `after`는 역순입니다.
+- **컨텍스트** — `ChatClientRequest`/`ChatClientResponse`는 `context` 맵을 함께 나릅니다. Advisor가 남긴 값을 호출부에서 `chatClientResponse().context()`로 읽을 수 있습니다.
+- **기본 제공** — `SimpleLoggerAdvisor`는 요청·응답을 로그로 남깁니다(DEBUG). 별도 구현 없이 붙이기만 하면 됩니다.
+
+이 확장점이 있는 덕분에, 감사 로그·마스킹·비용 측정·금칙어 필터 같은 **횡단 관심사를 비즈니스 코드 밖에서** 처리할 수 있습니다. 문서 마지막에서 이야기하는 "가드레일"이 실제로 구현되는 자리이기도 합니다.
+
+## 9. 관측성
 
 운영 환경에서는 토큰 사용량과 비용 추적이 중요합니다. Spring AI는 Micrometer와 연동해 토큰 사용량·레이턴시를 관측하며, 토큰·캐시 지표를 통합 API로 제공합니다.
 
