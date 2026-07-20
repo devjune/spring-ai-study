@@ -28,6 +28,14 @@
     background: #f4f4f4; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: .78rem; overflow-x: auto; white-space: pre;
   }
+  .code-wrap { position: relative; }
+  .code-wrap pre.code { padding-right: 3.6rem; }
+  .copy-btn {
+    position: absolute; top: .3rem; right: .3rem; margin: 0;
+    padding: .15rem .45rem; font-size: .7rem; line-height: 1.4;
+    border: 1px solid var(--line); background: #fff; color: #000; cursor: pointer;
+  }
+  .copy-btn:hover { background: #000; color: #fff; }
   label { display:block; font-size:.8rem; margin:.5rem 0 .2rem; }
   input, textarea {
     width: 100%; padding: .5rem; border: 1px solid var(--line);
@@ -163,7 +171,12 @@ MessageWindowChatMemory.builder()      // 정책: 최근 N개만 유지
     <p class="desc">이 앱 자체가 <b>MCP 서버</b>입니다. 아래 도구를 MCP 프로토콜로 노출해, 다른 에이전트(MCP 클라이언트)가 표준 규격으로 호출할 수 있습니다. (이 화면에서 직접 호출하는 대신, MCP 클라이언트로 접속해 확인)</p>
     <pre class="code">@McpTool(name="add")  fun add(a, b) = a + b
 @McpTool(name="echo") fun echo(message) = message</pre>
-    <div class="out">MCP 엔드포인트로 tools/list 하면 add, echo 가 노출됩니다.</div>
+    <p class="desc"><b>확인 방법 (터미널):</b> 이 앱을 Claude Code에 MCP 서버로 등록하면, 외부 에이전트가 우리 도구를 직접 호출합니다. <b>API 키 없이도 동작합니다</b> — 도구 목록·실행은 LLM을 거치지 않습니다.</p>
+    <pre class="code">claude mcp add --transport http demo http://localhost:8080/mcp
+claude mcp list                    # demo 연결 확인
+# 대화창에서: "demo 서버의 add 로 7 더하기 5 해줘"</pre>
+    <p class="desc">등록을 되돌리려면 <code>claude mcp remove demo</code>.</p>
+    <div class="out">이 화면에는 버튼이 없습니다. MCP는 브라우저가 아니라 다른 에이전트가 붙는 프로토콜이고, 그 점이 이 섹션의 요지입니다.</div>
   </section>
 
   <!-- 11 -->
@@ -208,6 +221,41 @@ MessageWindowChatMemory.builder()      // 정책: 최근 N개만 유지
       set(outId, JSON.stringify(await res.json(), null, 2));
     } catch (e) { set(outId, '오류: ' + e.message); }
   }
+
+  // 모든 코드 블록에 복사 버튼을 붙인다.
+  document.querySelectorAll('pre.code').forEach(pre => {
+    const wrap = document.createElement('div');
+    wrap.className = 'code-wrap';
+    pre.parentNode.insertBefore(wrap, pre);
+    wrap.appendChild(pre);
+
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '복사';
+    btn.onclick = async () => {
+      const text = pre.textContent;
+      try {
+        // clipboard API는 보안 컨텍스트(localhost/https)에서만 동작한다.
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+        }
+        btn.textContent = '복사됨';
+      } catch (e) {
+        btn.textContent = '실패';
+      }
+      setTimeout(() => { btn.textContent = '복사'; }, 1200);
+    };
+    wrap.appendChild(btn);
+  });
 
   function stream() {
     const out = 'stream-out';
