@@ -1,5 +1,6 @@
 package com.example.demo.toolsearch
 
+import com.example.demo.common.ChatReply
 import com.example.demo.common.ChatRequest
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.chat.client.advisor.toolsearch.ToolSearchToolCallingAdvisor
@@ -45,9 +46,9 @@ class ToolSearchController(builder: ChatClient.Builder) {
         .build()
 
     @PostMapping("/chat")
-    fun chat(@RequestBody req: ChatRequest): Map<String, String?> =
-        mapOf(
-            "reply" to chatClient.prompt()
+    fun chat(@RequestBody req: ChatRequest): ChatReply =
+        ChatReply(
+            chatClient.prompt()
                 .advisors(toolSearchAdvisor)
                 // ToolSearch는 세션별 도구 인덱스를 유지하므로 세션 ID가 필요하다.
                 .advisors { it.param(ChatMemory.CONVERSATION_ID, "toolsearch-demo") }

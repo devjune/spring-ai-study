@@ -4,8 +4,17 @@ import com.example.demo.common.ChatRequest
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.web.bind.annotation.*
 
+/** 응답 + 토큰 사용량. 화면이 필드 이름 그대로 표시한다. */
+data class UsageReply(
+    val reply: String?,
+    val promptTokens: Int,
+    val completionTokens: Int,
+    val totalTokens: Int,
+)
+
 /**
  * 관측성 — 응답 메타데이터에서 토큰 사용량을 읽는다.
+ * content() 대신 chatResponse() 로 받아야 메타데이터에 접근할 수 있다.
  * 문서 "핵심 기능 8. 관측성" 예제에 대응.
  */
 @RestController
@@ -15,14 +24,15 @@ class ObservabilityController(builder: ChatClient.Builder) {
     private val chatClient = builder.build()
 
     @PostMapping("/chat")
-    fun chat(@RequestBody req: ChatRequest): Map<String, Any?> {
-        val response = chatClient.prompt().user(req.message).call().chatResponse()!!
+    fun chat(@RequestBody req: ChatRequest): UsageReply {
+        val response = chatClient.prompt().user(req.message).call().chatResponse()
+            ?: error("모델이 응답을 반환하지 않았다")
         val usage = response.metadata.usage
-        return mapOf(
-            "reply" to response.result?.output?.text,
-            "promptTokens" to usage.promptTokens,
-            "completionTokens" to usage.completionTokens,
-            "totalTokens" to usage.totalTokens,
+        return UsageReply(
+            reply = response.result?.output?.text,
+            promptTokens = usage.promptTokens,
+            completionTokens = usage.completionTokens,
+            totalTokens = usage.totalTokens,
         )
     }
 }

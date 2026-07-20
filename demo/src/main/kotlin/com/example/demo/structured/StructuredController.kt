@@ -22,5 +22,6 @@ class StructuredController(builder: ChatClient.Builder) {
         chatClient.prompt()
             .user(req.message)
             .call()
-            .entity(Movie::class.java)!!
+            .entity(Movie::class.java)
+            ?: error("모델 응답을 Movie 로 변환하지 못했다")
 }
