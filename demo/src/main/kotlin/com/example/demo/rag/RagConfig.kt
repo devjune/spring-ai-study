@@ -1,4 +1,4 @@
-package com.example.demo
+package com.example.demo.rag
 
 import org.springframework.ai.document.Document
 import org.springframework.ai.embedding.EmbeddingModel

@@ -1,5 +1,6 @@
-package com.example.demo
+package com.example.demo.basic
 
+import com.example.demo.common.ChatRequest
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*

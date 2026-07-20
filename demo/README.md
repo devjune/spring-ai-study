@@ -19,6 +19,24 @@ export ANTHROPIC_API_KEY=sk-ant-...
 
 > 최초 실행 시 RAG용 임베딩 모델(all-MiniLM-L6-v2, ONNX)을 내려받는다(수십 MB, 로컬 실행이라 Anthropic 외 추가 키 불필요).
 
+## 코드 구조
+
+기능 하나가 패키지 하나다. 문서에서 궁금한 기능을 그 이름의 패키지에서 바로 찾을 수 있다.
+
+```
+com.example.demo
+├── DemoApplication.kt
+├── common/         ChatRequest, ConversationRequest (공용 DTO)
+├── basic/          ChatClient 동기 호출 · 스트리밍 · 페르소나
+├── structured/     .entity() + Movie 타입
+├── memory/         MessageChatMemoryAdvisor + ChatMemory 빈
+├── tool/           @Tool (WeatherTools)
+├── rag/            QuestionAnswerAdvisor + VectorStore 시드
+├── toolsearch/     ToolSearchToolCallingAdvisor (ManyTools)
+├── mcp/            @McpTool — 이 앱을 MCP 서버로 노출
+└── observability/  토큰 사용량 메타데이터
+```
+
 ## 데모 ↔ 문서 예제 매핑
 
 | UI 섹션 | 엔드포인트 | 문서 예제 |

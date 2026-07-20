@@ -1,5 +1,6 @@
-package com.example.demo
+package com.example.demo.memory
 
+import com.example.demo.common.ConversationRequest
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor
 import org.springframework.ai.chat.memory.ChatMemory

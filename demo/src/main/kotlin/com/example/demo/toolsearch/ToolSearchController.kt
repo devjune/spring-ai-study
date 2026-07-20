@@ -1,5 +1,6 @@
-package com.example.demo
+package com.example.demo.toolsearch
 
+import com.example.demo.common.ChatRequest
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.chat.client.advisor.toolsearch.ToolSearchToolCallingAdvisor
 import org.springframework.ai.chat.memory.ChatMemory

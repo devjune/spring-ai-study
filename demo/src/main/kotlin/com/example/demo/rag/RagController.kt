@@ -1,5 +1,6 @@
-package com.example.demo
+package com.example.demo.rag
 
+import com.example.demo.common.ChatRequest
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor
 import org.springframework.ai.vectorstore.VectorStore

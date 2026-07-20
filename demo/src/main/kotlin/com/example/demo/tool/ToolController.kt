@@ -1,5 +1,6 @@
-package com.example.demo
+package com.example.demo.tool
 
+import com.example.demo.common.ChatRequest
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.tool.annotation.Tool
 import org.springframework.ai.tool.annotation.ToolParam
