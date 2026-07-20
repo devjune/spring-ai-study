@@ -78,7 +78,7 @@
     <p class="desc">가장 기본. LLM에 메시지를 보내고 텍스트 응답을 받습니다.</p>
     <pre class="code">chatClient.prompt().user(msg).call().content()</pre>
     <textarea id="basic-in">타입스크립트가 뭐야? 한 문장으로.</textarea>
-    <button onclick="post('/api/basic/chat', {message: val('basic-in')}, 'basic-out', 'reply')">전송</button>
+    <button data-post="/api/basic/chat" data-in="basic-in" data-out="basic-out" data-field="reply">전송</button>
     <div class="out" id="basic-out"></div>
   </section>
 
@@ -88,7 +88,7 @@
     <p class="desc">응답을 한 번에 받지 않고 토큰이 오는 대로 흘려보냅니다(타이핑 효과). 반환은 Flux → SSE.</p>
     <pre class="code">chatClient.prompt().user(msg).stream().content()  // Flux&lt;String&gt;</pre>
     <textarea id="stream-in">봄에 대한 짧은 시 한 편.</textarea>
-    <button onclick="stream()">스트리밍 시작</button>
+    <button data-stream="/api/basic/stream" data-in="stream-in" data-out="stream-out">스트리밍 시작</button>
     <div class="out" id="stream-out"></div>
   </section>
 
@@ -98,7 +98,7 @@
     <p class="desc">페르소나(말투·역할)를 지정합니다. 여기선 "해적처럼 말하는" 챗봇.</p>
     <pre class="code">.system("너는 해적처럼 말한다").user(msg)</pre>
     <textarea id="persona-in">오늘 기분 어때?</textarea>
-    <button onclick="post('/api/basic/persona', {message: val('persona-in')}, 'persona-out', 'reply')">전송</button>
+    <button data-post="/api/basic/persona" data-in="persona-in" data-out="persona-out" data-field="reply">전송</button>
     <div class="out" id="persona-out"></div>
   </section>
 
@@ -108,7 +108,7 @@
     <p class="desc">텍스트가 아니라 타입 객체(JSON)로 받습니다. LLM을 타입 안전한 함수처럼 사용.</p>
     <pre class="code">.call().entity(Movie::class.java)   // {title, year, director}</pre>
     <textarea id="struct-in">SF 영화 하나 추천해줘.</textarea>
-    <button onclick="postJson('/api/structured/movie', {message: val('struct-in')}, 'struct-out')">전송</button>
+    <button data-post="/api/structured/movie" data-in="struct-in" data-out="struct-out">전송</button>
     <div class="out" id="struct-out"></div>
   </section>
 
@@ -128,10 +128,10 @@ MessageWindowChatMemory.builder()      // 정책: 최근 N개만 유지
     <label>메시지</label>
     <textarea id="mem-in">내 이름은 준이야.</textarea>
     <div>
-      <button onclick="fill('mem-in','내 이름은 준이야.')">① 이름 알려주기</button>
-      <button onclick="fill('mem-in','내 이름이 뭐라고 했지?')">② 이름 되묻기</button>
+      <button data-fill="mem-in" data-text="내 이름은 준이야.">① 이름 알려주기</button>
+      <button data-fill="mem-in" data-text="내 이름이 뭐라고 했지?">② 이름 되묻기</button>
     </div>
-    <button onclick="post('/api/memory/chat', {conversationId: val('mem-id'), message: val('mem-in')}, 'mem-out', 'reply')">전송</button>
+    <button data-post="/api/memory/chat" data-in="mem-in" data-conv="mem-id" data-out="mem-out" data-field="reply">전송</button>
     <div class="out" id="mem-out"></div>
   </section>
 
@@ -141,7 +141,7 @@ MessageWindowChatMemory.builder()      // 정책: 최근 N개만 유지
     <p class="desc">LLM이 우리 함수(getWeather)를 필요할 때 직접 호출합니다. "서울 날씨"를 물으면 도구가 실행됩니다.</p>
     <pre class="code">.tools(WeatherTools())   // @Tool fun getWeather(city)</pre>
     <textarea id="tool-in">서울 날씨 어때?</textarea>
-    <button onclick="post('/api/tool/chat', {message: val('tool-in')}, 'tool-out', 'reply')">전송</button>
+    <button data-post="/api/tool/chat" data-in="tool-in" data-out="tool-out" data-field="reply">전송</button>
     <div class="out" id="tool-out"></div>
   </section>
 
@@ -151,7 +151,7 @@ MessageWindowChatMemory.builder()      // 정책: 최근 N개만 유지
     <p class="desc">사내 문서(환불 정책·영업시간)를 검색해 근거로 답합니다. 시드된 문서: 환불 7일 이내, 영업 평일 09~18시.</p>
     <pre class="code">.advisors(QuestionAnswerAdvisor.builder(vectorStore).build())</pre>
     <textarea id="rag-in">우리 환불 정책이 뭐야?</textarea>
-    <button onclick="post('/api/rag/chat', {message: val('rag-in')}, 'rag-out', 'reply')">전송</button>
+    <button data-post="/api/rag/chat" data-in="rag-in" data-out="rag-out" data-field="reply">전송</button>
     <div class="out" id="rag-out"></div>
   </section>
 
@@ -161,7 +161,7 @@ MessageWindowChatMemory.builder()      // 정책: 최근 N개만 유지
     <p class="desc">도구가 여러 개(날씨·덧셈·주문조회·시간)일 때, 질문에 맞는 것만 골라 LLM에 노출합니다.</p>
     <pre class="code">.advisors(toolSearchAdvisor).tools(ManyTools())</pre>
     <textarea id="ts-in">사용자 준의 최근 주문 상태 알려줘.</textarea>
-    <button onclick="post('/api/toolsearch/chat', {message: val('ts-in')}, 'ts-out', 'reply')">전송</button>
+    <button data-post="/api/toolsearch/chat" data-in="ts-in" data-out="ts-out" data-field="reply">전송</button>
     <div class="out" id="ts-out"></div>
   </section>
 
@@ -172,7 +172,7 @@ MessageWindowChatMemory.builder()      // 정책: 최근 N개만 유지
     <pre class="code">response.metadata.usage.totalTokens</pre>
     <p class="desc">전송하면 응답과 함께 <b>promptTokens</b>(입력), <b>completionTokens</b>(출력), <b>totalTokens</b>(합계)가 표시됩니다.</p>
     <textarea id="obs-in">스프링이 뭔지 한 문장으로 설명해줘.</textarea>
-    <button onclick="postJson('/api/observability/chat', {message: val('obs-in')}, 'obs-out')">전송</button>
+    <button data-post="/api/observability/chat" data-in="obs-in" data-out="obs-out">전송</button>
     <div class="out" id="obs-out"></div>
   </section>
 
@@ -186,43 +186,74 @@ MessageWindowChatMemory.builder()      // 정책: 최근 N개만 유지
     override fun after(res, chain) = res
 }</pre>
     <textarea id="adv-in">내 카드번호는 4111-1111-1111-1111 인데 안전해?</textarea>
-    <button onclick="postJson('/api/advisor/chat', {message: val('adv-in')}, 'adv-out')">전송</button>
+    <button data-post="/api/advisor/chat" data-in="adv-in" data-out="adv-out">전송</button>
     <div class="out" id="adv-out"></div>
   </section>
 </main>
 
 <script>
-  const val = id => document.getElementById(id).value;
-  const set = (id, text) => document.getElementById(id).textContent = text;
-  // 응답 대기 표시. textContent 가 아니라 innerHTML 이라 별도 함수로 둔다.
-  const busy = id => document.getElementById(id).innerHTML =
-    '<span class="spinner" role="status" aria-label="응답 대기 중"></span>';
-  const fill = (id, text) => document.getElementById(id).value = text;
+  const $ = id => document.getElementById(id);
+  const setText = (id, text) => { $(id).textContent = text; };
+  // 대기 표시는 마크업이라 textContent 가 아니라 innerHTML 로 넣는다.
+  const setBusy = id => {
+    $(id).innerHTML = '<span class="spinner" role="status" aria-label="응답 대기 중"></span>';
+  };
 
-  async function post(url, body, outId, field) {
-    busy(outId);
+  /** 버튼의 data-* 로 요청 본문을 조립한다. data-conv 가 있으면 대화 ID 를 함께 보낸다. */
+  const bodyOf = btn => {
+    const body = { message: $(btn.dataset.in).value };
+    if (btn.dataset.conv) body.conversationId = $(btn.dataset.conv).value;
+    return body;
+  };
+
+  /**
+   * data-field 가 있으면 그 필드만 텍스트로, 없으면 응답 전체를 JSON 으로 보여준다.
+   * (토큰 사용량·Structured Output 처럼 여러 필드를 보여줘야 하는 섹션이 후자)
+   */
+  async function send(btn) {
+    const out = btn.dataset.out;
+    setBusy(out);
     try {
-      const res = await fetch(url, {
-        method: 'POST', headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(body),
+      const res = await fetch(btn.dataset.post, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bodyOf(btn)),
       });
       const data = await res.json();
-      set(outId, data[field] ?? JSON.stringify(data));
-    } catch (e) { set(outId, '오류: ' + e.message); }
+      const field = btn.dataset.field;
+      setText(out, field && data[field] != null ? data[field] : JSON.stringify(data, null, 2));
+    } catch (e) {
+      setText(out, '오류: ' + e.message);
+    }
   }
 
-  async function postJson(url, body, outId) {
-    busy(outId);
-    try {
-      const res = await fetch(url, {
-        method: 'POST', headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(body),
-      });
-      set(outId, JSON.stringify(await res.json(), null, 2));
-    } catch (e) { set(outId, '오류: ' + e.message); }
+  /** SSE. 첫 토큰이 오면 스피너를 지우고 그때부터 이어붙인다. */
+  function stream(btn) {
+    const out = btn.dataset.out;
+    setBusy(out);
+    let first = true;
+    const url = btn.dataset.stream + '?message=' + encodeURIComponent($(btn.dataset.in).value);
+    const es = new EventSource(url);
+    es.onmessage = e => {
+      if (first) { setText(out, ''); first = false; }
+      $(out).textContent += e.data;
+    };
+    es.onerror = () => {
+      if (first) setText(out, '오류: 스트림을 열지 못했습니다.');
+      es.close();
+    };
   }
 
-  // 모든 코드 블록에 복사 버튼을 붙인다.
+  /** 버튼 동작은 전부 data-* 로 선언한다. 마크업에 스크립트를 두지 않기 위함. */
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    if (btn.dataset.post) send(btn);
+    else if (btn.dataset.stream) stream(btn);
+    else if (btn.dataset.fill) $(btn.dataset.fill).value = btn.dataset.text;
+  });
+
+  // 코드 블록마다 복사 버튼을 붙인다.
   document.querySelectorAll('pre.code').forEach(pre => {
     const wrap = document.createElement('div');
     wrap.className = 'code-wrap';
@@ -232,46 +263,28 @@ MessageWindowChatMemory.builder()      // 정책: 최근 N개만 유지
     const btn = document.createElement('button');
     btn.className = 'copy-btn';
     btn.textContent = '복사';
-    btn.onclick = async () => {
-      const text = pre.textContent;
+    btn.addEventListener('click', async () => {
       try {
-        // clipboard API는 보안 컨텍스트(localhost/https)에서만 동작한다.
+        // clipboard API 는 보안 컨텍스트(localhost/https)에서만 동작한다.
         if (navigator.clipboard && window.isSecureContext) {
-          await navigator.clipboard.writeText(text);
+          await navigator.clipboard.writeText(pre.textContent);
         } else {
           const ta = document.createElement('textarea');
-          ta.value = text;
-          ta.style.position = 'fixed';
-          ta.style.opacity = '0';
+          ta.value = pre.textContent;
+          ta.style.cssText = 'position:fixed;opacity:0';
           document.body.appendChild(ta);
           ta.select();
           document.execCommand('copy');
-          document.body.removeChild(ta);
+          ta.remove();
         }
         btn.textContent = '복사됨';
       } catch (e) {
         btn.textContent = '실패';
       }
       setTimeout(() => { btn.textContent = '복사'; }, 1200);
-    };
+    });
     wrap.appendChild(btn);
   });
-
-  function stream() {
-    const out = 'stream-out';
-    busy(out);                    // 첫 토큰이 올 때까지 대기 표시
-    let first = true;
-    const url = '/api/basic/stream?message=' + encodeURIComponent(val('stream-in'));
-    const es = new EventSource(url);
-    es.onmessage = e => {
-      if (first) { set(out, ''); first = false; }   // 스피너를 지우고 이어붙인다
-      document.getElementById(out).textContent += e.data;
-    };
-    es.onerror = () => {
-      if (first) set(out, '오류: 스트림을 열지 못했습니다.');
-      es.close();
-    };
-  }
 </script>
 </body>
 </html>
