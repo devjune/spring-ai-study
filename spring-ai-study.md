@@ -305,12 +305,14 @@ chatClient.prompt()
     .content()
 ```
 
-2.0에서는 함수 등록 방식이 하나로 정리됐습니다. 1.x에서는 등록 방식이 여러 갈래(`Function` 빈, `FunctionCallback`, `@Tool`)로 나뉘어 있었습니다.
+2.0에서 달라진 것은 등록 방식보다 **실행 루프의 통제권**입니다.
 
 | | 1.x | 2.0 |
 | --- | --- | --- |
-| 등록 방식 | `Function` 빈 · `FunctionCallback` · `@Tool` 혼재 | `ToolCallback`로 일원화 (`FunctionCallback` 제거) |
+| 등록 방식 | `Function` 빈 · `@Tool` | `ToolCallback`으로 일원화 |
 | 실행 루프 | `internalToolExecutionEnabled` 수동 토글 | `ToolCallingAdvisor` 1급 컴포넌트 + 자동 등록 |
+
+1.x에서는 도구 실행 루프가 모델 구현 안에 들어 있어, `internalToolExecutionEnabled`를 끄면 루프 전체를 직접 짜야 했습니다. 2.0은 이 루프를 `ToolCallingAdvisor`로 꺼내 Advisor 체인의 한 요소로 만들었습니다. 앞뒤에 다른 Advisor를 끼워 넣어 실행에 개입할 수 있습니다.
 
 `.tools()`만 넘기면 Advisor가 "호출 요청 → 함수 실행 → 결과 재주입" 루프를 자동 처리합니다.
 

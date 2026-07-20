@@ -29,7 +29,8 @@ Spring AI = **Java/Spring 진영의 LangChain**. 1.0은 "LLM 호출 라이브러
 - 프로바이더 변형 구현 정리(OpenAI 3종→1종 등).
 
 ### Tool Calling 표준화 — 진화의 핵심
-- 1.x엔 `Function` 빈 / `FunctionCallback` / `@Tool` 혼재 → 2.0은 **`ToolCallback`/`FunctionToolCallback`으로 일원화**. **`FunctionCallback` API 완전 제거.**
+- 2.0은 **`ToolCallback`/`FunctionToolCallback`으로 일원화**.
+  - ~~`FunctionCallback`이 1.x에 있다가 2.0에서 제거~~ → **사실 아님**. `spring-ai-core:1.0.0-M6`에 16개, `spring-ai-model:1.0.0`(GA)부터 0개. 1.0 GA 전에 정리된 API.
 - `internalToolExecutionEnabled` 옵션 제거 → **`ToolCallingAdvisor`가 1급 컴포넌트 + 자동 등록**. `.tools()`만 주면 호출 루프 자동 처리.
 - 의미: 툴 = 에이전트의 손발. 2.0이 이를 프레임워크 **정식 파이프라인으로 승격**. 철학은 그대로 제어의 역전(IoC).
 - 마이그레이션 메모: `.functions()`→`.tools()`, bare Function 빈 → `ToolCallback` 빈 + `FunctionToolCallback.builder()`.
