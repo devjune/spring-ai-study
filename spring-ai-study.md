@@ -52,8 +52,9 @@ Spring AI로 만들 수 있는 대표적인 유스케이스와 대상은 다음�
 ### 지원 범위
 
 - **모델 종류** — Chat, Embedding, Text-to-Image, Audio Transcription, Text-to-Speech, Moderation.
-- **벤더** — Anthropic, OpenAI, Azure(Microsoft), Amazon Bedrock, Google, Ollama, Mistral, DeepSeek 등.
-- **VectorStore** — pgvector, Redis, Chroma 등 다수.
+- **벤더** — Anthropic, OpenAI, Amazon Bedrock, Google(Gemini/Vertex), Ollama, Mistral, DeepSeek 등.
+- **VectorStore** — pgvector, Redis, Chroma, Qdrant, Elasticsearch, MongoDB Atlas 등 **21종**.
+- **로컬 실행** — `spring-ai-starter-model-transformers`로 임베딩을 로컬 ONNX 모델에서 생성할 수 있습니다(외부 API 키 불필요). 데모의 RAG가 이 방식입니다.
 
 ---
 
