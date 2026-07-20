@@ -51,6 +51,17 @@
     margin-top: .75rem; padding: .6rem; border: 1px dashed var(--line);
     min-height: 1.4rem; white-space: pre-wrap; font-size: .9rem; background: #fafafa;
   }
+  .spinner {
+    display: inline-block; width: .85em; height: .85em; vertical-align: -.1em;
+    border: 2px solid var(--line); border-right-color: transparent;
+    border-radius: 50%; animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  /* 모션 최소화 설정에서는 회전 대신 깜빡임으로 */
+  @media (prefers-reduced-motion: reduce) {
+    .spinner { animation: blink 1s steps(2, start) infinite; }
+    @keyframes blink { 50% { opacity: .3; } }
+  }
 </style>
 </head>
 <body>
@@ -183,10 +194,13 @@ MessageWindowChatMemory.builder()      // 정책: 최근 N개만 유지
 <script>
   const val = id => document.getElementById(id).value;
   const set = (id, text) => document.getElementById(id).textContent = text;
+  // 응답 대기 표시. textContent 가 아니라 innerHTML 이라 별도 함수로 둔다.
+  const busy = id => document.getElementById(id).innerHTML =
+    '<span class="spinner" role="status" aria-label="응답 대기 중"></span>';
   const fill = (id, text) => document.getElementById(id).value = text;
 
   async function post(url, body, outId, field) {
-    set(outId, '...');
+    busy(outId);
     try {
       const res = await fetch(url, {
         method: 'POST', headers: {'Content-Type': 'application/json'},
@@ -198,7 +212,7 @@ MessageWindowChatMemory.builder()      // 정책: 최근 N개만 유지
   }
 
   async function postJson(url, body, outId) {
-    set(outId, '...');
+    busy(outId);
     try {
       const res = await fetch(url, {
         method: 'POST', headers: {'Content-Type': 'application/json'},
@@ -245,11 +259,18 @@ MessageWindowChatMemory.builder()      // 정책: 최근 N개만 유지
 
   function stream() {
     const out = 'stream-out';
-    set(out, '');
+    busy(out);                    // 첫 토큰이 올 때까지 대기 표시
+    let first = true;
     const url = '/api/basic/stream?message=' + encodeURIComponent(val('stream-in'));
     const es = new EventSource(url);
-    es.onmessage = e => document.getElementById(out).textContent += e.data;
-    es.onerror = () => es.close();
+    es.onmessage = e => {
+      if (first) { set(out, ''); first = false; }   // 스피너를 지우고 이어붙인다
+      document.getElementById(out).textContent += e.data;
+    };
+    es.onerror = () => {
+      if (first) set(out, '오류: 스트림을 열지 못했습니다.');
+      es.close();
+    };
   }
 </script>
 </body>
