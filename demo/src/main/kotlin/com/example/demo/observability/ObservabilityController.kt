@@ -26,7 +26,7 @@ class ObservabilityController(builder: ChatClient.Builder) {
     @PostMapping("/chat")
     fun chat(@RequestBody req: ChatRequest): UsageReply {
         val response = chatClient.prompt().user(req.message).call().chatResponse()
-            ?: error("모델이 응답을 반환하지 않았다")
+            ?: error("Model returned no response")
         val usage = response.metadata.usage
         return UsageReply(
             reply = response.result?.output?.text,
