@@ -2,7 +2,10 @@ package com.example.demo.structured
 
 import com.example.demo.common.ChatRequest
 import org.springframework.ai.chat.client.ChatClient
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 
 /** LLM 응답을 담을 타입. 필드 이름·타입이 그대로 JSON 스키마가 된다. */
 data class Movie(val title: String, val year: Int, val director: String)

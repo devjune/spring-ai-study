@@ -9,7 +9,11 @@ import org.springframework.ai.model.tool.ToolCallingManager
 import org.springframework.ai.tool.annotation.Tool
 import org.springframework.ai.tool.annotation.ToolParam
 import org.springframework.ai.tool.toolsearch.index.regex.RegexToolIndex
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
+import java.time.LocalDateTime
 
 /** 여러 개의 도구. ToolSearch가 질문에 맞는 것만 선별해 LLM에 노출한다. */
 class ManyTools {
@@ -23,7 +27,7 @@ class ManyTools {
     fun getOrder(@ToolParam(description = "사용자 ID") userId: String) = "$userId 의 최근 주문: 배송중"
 
     @Tool(description = "현재 서버 시간을 반환한다")
-    fun now() = java.time.LocalDateTime.now().toString()
+    fun now() = LocalDateTime.now().toString()
 }
 
 /**

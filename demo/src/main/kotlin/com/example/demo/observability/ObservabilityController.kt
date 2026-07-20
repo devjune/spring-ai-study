@@ -2,7 +2,10 @@ package com.example.demo.observability
 
 import com.example.demo.common.ChatRequest
 import org.springframework.ai.chat.client.ChatClient
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 
 /** 응답 + 토큰 사용량. 화면이 필드 이름 그대로 표시한다. */
 data class UsageReply(
