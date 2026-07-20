@@ -477,7 +477,11 @@ chatClient.prompt()
 
 ### 9. 관측성
 
-운영 환경에서는 토큰 사용량과 비용 추적이 중요합니다. Spring AI는 Micrometer와 연동해 토큰 사용량·레이턴시를 관측하며, 토큰·캐시 지표를 통합 API로 제공합니다.
+**LLM은 토큰 단위로 과금됩니다.** 호출 한 번의 비용이 입력·출력 길이에 따라 달라지므로, 사용량 추적은 선택이 아니라 운영 요건입니다.
+
+읽는 방법은 두 가지입니다. 호출 단위로 직접 읽거나, Micrometer 지표로 모으거나.
+
+#### 호출 단위로 읽기
 
 토큰 사용량은 `.content()` 대신 `.chatResponse()`로 받아 메타데이터에서 읽습니다.
 
@@ -491,6 +495,21 @@ usage.completionTokens            // 출력 토큰
 usage.totalTokens                 // 합계
 usage.cacheReadInputTokens        // 캐시로 읽은 토큰 (2.0 통합 지표)
 ```
+
+1.x에서는 캐시 토큰 같은 지표를 벤더별 응답에서 각자 꺼내야 했습니다. 2.0은 이를 `Usage` 인터페이스로 통합해, 벤더가 바뀌어도 같은 코드로 읽습니다.
+
+#### 지표로 모으기
+
+`ChatObservationAutoConfiguration`이 Micrometer Observation을 자동 구성합니다. `MeterRegistry` 빈이 있으면(actuator를 넣으면) `ChatModelMeterObservationHandler`가 호출별 토큰 사용량과 소요 시간을 지표로 기록하므로, 대시보드·알림은 기존 Micrometer 파이프라인을 그대로 씁니다.
+
+프롬프트와 응답 본문은 기본적으로 로그에 남지 않습니다. 필요할 때만 켭니다.
+
+```properties
+spring.ai.chat.observations.log-prompt=true       # 기본 false
+spring.ai.chat.observations.log-completion=true   # 기본 false
+```
+
+> 이 두 옵션은 프롬프트·응답 전문을 로그로 내보냅니다. 개인정보나 사내 문서가 그대로 남을 수 있으므로 운영 환경에서는 신중해야 합니다. 기본값이 `false`인 이유이기도 합니다.
 
 ---
 
@@ -523,7 +542,7 @@ fun supportAgent(
 4. **Memory** — 이전 대화("지난주 주문"이 무엇인지)를 기억한다.
 5. 정책 + 실제 데이터에 근거한 답을 만든다.
 
-개발자가 만드는 것은 검증된 도구와 신뢰할 수 있는 지식이며, 그것들을 언제 어떻게 조합할지는 LLM에 위임합니다. 이것이 에이전트의 본질입니다.
+개발자가 만드는 것은 검증된 도구와 신뢰할 수 있는 지식이고, 그것들을 언제 어떻게 조합할지는 LLM이 정합니다.
 
 ---
 
@@ -533,7 +552,7 @@ fun supportAgent(
 | ------------ | ------------------ | ------------------------------------------- |
 | 런타임          | Spring Boot 3      | **Spring Boot 4 / Framework 7 / Jackson 3** |
 | 널 안전성        | 명시 없음              | **JSpecify `@Nullable`** (Kotlin에서 `String?`로 드러남) |
-| Tool Calling | 등록 방식 혼재           | `ToolCallback` 일원화, Advisor 자동              |
+| Tool Calling | 실행 루프가 모델 구현 내부      | `ToolCallingAdvisor`로 분리, Advisor 체인에 편입      |
 | 대규모 도구       | —                  | **ToolSearch** (점진적 노출)                     |
 | MCP          | SDK 별도             | **Spring AI 1급 편입** (`@McpTool`, 전송 내장)     |
 | 대화 메모리       | 빌더에 conversationId | 호출 시점 `CONVERSATION_ID` 필수                  |
@@ -569,4 +588,4 @@ AI를 도입하면 백엔드 개발자의 역할이 바뀝니다. 더 이상 모
 - Spring AI 2.0.0 GA 블로그: https://spring.io/blog/2026/06/12/spring-ai-2-0-0-GA-available-now
 - Spring AI 1.0 GA 블로그: https://spring.io/blog/2025/05/20/spring-ai-1-0-GA-released/
 - Spring AI 1.1 GA 블로그: https://spring.io/blog/2025/11/12/spring-ai-1-1-GA-released/
-- 기준 버전: Spring AI 2.0.0 GA (이 자료의 예제는 Anthropic 스타터에 `claude-sonnet-4-5`를 지정해 사용)
+- 이 자료의 예제는 Anthropic 스타터에 `claude-sonnet-4-5`를 지정해 사용합니다.
