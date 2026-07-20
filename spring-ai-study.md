@@ -197,6 +197,38 @@ chatClient.prompt()
 
 > **1.x → 2.0 변화** — 대화 ID를 빌더의 `.conversationId()`에 넣던 방식이 사라지고, **호출 시점에 `ChatMemory.CONVERSATION_ID`로 넘기는 방식이 필수**가 됐습니다. 누락하면 예외가 납니다.
 
+### 대화를 어디에 저장할 것인가
+
+위 예제의 `MessageWindowChatMemory`는 기본적으로 **메모리에만** 담습니다. 서버를 재시작하면 대화가 사라지고, 인스턴스를 2대로 늘리면 어느 서버로 붙느냐에 따라 맥락이 갈립니다. 운영에서는 저장소를 붙여야 합니다.
+
+역할이 둘로 나뉘어 있습니다.
+
+- **`ChatMemory`** — 무엇을 기억할지 정하는 **정책** (예: 최근 N개 메시지만 유지)
+- **`ChatMemoryRepository`** — 그것을 어디에 둘지 정하는 **저장소** (JDBC, Redis, MongoDB, Cassandra, Neo4j)
+
+```kotlin
+@Bean
+fun chatMemory(chatMemoryRepository: ChatMemoryRepository): ChatMemory =
+    MessageWindowChatMemory.builder()
+        .chatMemoryRepository(chatMemoryRepository)   // 저장소만 갈아 끼운다
+        .build()
+```
+
+저장소는 스타터로 선택합니다. 스타터와 설정만 바꾸면 되고 **위 코드는 그대로**입니다.
+
+```groovy
+implementation("org.springframework.ai:spring-ai-starter-model-chat-memory-repository-jdbc")
+```
+
+```properties
+spring.datasource.url=jdbc:postgresql://localhost:5432/app
+spring.ai.chat.memory.repository.jdbc.initialize-schema=always
+```
+
+JDBC 저장소는 플랫폼별 스키마(postgresql, mysql, mariadb, oracle, sqlserver, h2 등)를 내장하고 있고, `JdbcChatMemoryRepositoryProperties`가 Spring Boot의 `DatabaseInitializationProperties`를 상속하므로 `initialize-schema` 같은 **기존 Boot의 스키마 초기화 방식을 그대로** 씁니다. 애플리케이션의 `DataSource`를 공유하는 구조입니다.
+
+> 데모 앱은 설치 없이 실행되도록 같은 JDBC 저장소를 H2 파일 모드(`jdbc:h2:file:./data/chatmemory`)로 씁니다. 앱을 재시작해도 대화가 유지되는 것을 확인할 수 있습니다.
+
 ## 4. Tool Calling — LLM이 함수를 호출한다
 
 Tool Calling은 LLM에게 함수 목록을 제공하고, 필요할 때 LLM이 그 함수를 호출하게 하는 기능입니다.

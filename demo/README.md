@@ -56,6 +56,7 @@ com.example.demo
 
 - **API 키** — `application.properties`에서 `${ANTHROPIC_API_KEY}`로 주입. 하드코딩 없음.
 - **RAG 임베딩** — 로컬 ONNX(`spring-ai-starter-model-transformers`). 사내 문서 3건(환불 정책·영업시간)을 인메모리 `SimpleVectorStore`에 시드.
+- **대화 메모리 영속화** — `spring-ai-starter-model-chat-memory-repository-jdbc` + H2 **파일** 모드(`./data/chatmemory`). 도커 없이 실행하려고 H2를 썼고, 운영이라면 같은 코드에 Postgres 설정만 바꾸면 된다. 스키마는 starter 내장 `schema-h2.sql`을 `initialize-schema=always`로 생성한다. `data/`는 gitignore 대상.
 - **MCP** — `spring-ai-starter-mcp-server-webmvc`. `@McpTool`로 `add`, `echo`를 MCP 프로토콜로 노출(이 앱이 MCP 서버). 기동 로그의 `McpServerAnnotationScanner...` WARN은 무해한 BeanPostProcessor 경고.
 - **ToolSearch** — `ToolSearchController`에서 `ToolSearchToolCallingAdvisor`를 regex 인덱스로 수동 구성했다.
   property 방식(`spring.ai.chat.client.tool-search-advisor.enabled`)도 실재하지만, 켜면 기본 `ToolCallingAdvisor`가 **전역** 교체돼 도구를 쓰지 않는 엔드포인트(1번 기본 채팅, 7번 RAG 등)까지 세션 ID를 요구하며 실패한다. 섹션별로 독립 실행돼야 하는 데모라 수동 구성을 택했다. 자세한 사정은 스터디 문서 "6. ToolSearch" 참고.

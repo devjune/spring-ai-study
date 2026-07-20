@@ -3,3 +3,5 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 .idea/
 *.iml
+# H2 대화 메모리 파일
+data/
