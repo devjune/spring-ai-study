@@ -146,6 +146,27 @@ val movie: Movie = chatClient.prompt().user(msg).call().entity(Movie::class.java
 val flux: Flux<String> = chatClient.prompt().user(msg).stream().content()
 ```
 
+LLM 응답은 수 초가 걸리기 때문에, 다 만들어질 때까지 기다렸다 한 번에 주면 사용자는 멈춘 화면을 봅니다. 스트리밍은 첫 글자까지의 시간을 줄이는 방식입니다.
+
+이 `Flux`를 브라우저까지 내보내려면 컨트롤러에서 **SSE**(Server-Sent Events)로 반환합니다. `produces`를 지정하는 것이 핵심입니다.
+
+```kotlin
+@GetMapping("/stream", produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
+fun stream(@RequestParam message: String): Flux<String> =
+    chatClient.prompt().user(message).stream().content()
+```
+
+- **WebFlux가 필수는 아닙니다.** Spring MVC도 리액티브 반환 타입을 처리하므로 `spring-boot-starter-web`만으로 동작합니다.
+- 브라우저 쪽은 `EventSource`로 받습니다.
+
+```javascript
+const es = new EventSource('/api/basic/stream?message=' + encodeURIComponent(msg));
+es.onmessage = e => out.textContent += e.data;
+es.onerror = () => es.close();
+```
+
+> 스트리밍에는 제약이 따릅니다. `.entity()`(Structured Output)처럼 응답 전체가 모여야 성립하는 기능은 함께 쓸 수 없고, 토큰 사용량 같은 메타데이터도 스트림이 끝나야 확정됩니다.
+
 ### 시스템 프롬프트 (페르소나)
 
 빌더의 `defaultSystem()`에 기본 페르소나를 박아두고, 호출 시점 `.system()`으로 덮어씁니다. `WebClient`의 `defaultHeader()`와 같은 계층 구조입니다.
