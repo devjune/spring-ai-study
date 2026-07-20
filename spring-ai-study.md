@@ -68,10 +68,15 @@ graph LR
     Adv --> RAG["RAG<br/>(QuestionAnswerAdvisor)"]
     Adv --> Tools["Tool Calling<br/>(+ ToolSearch)"]
     Tools --> MCP["MCP<br/>(외부 도구)"]
-    CC --> LLM["LLM<br/>(Anthropic / OpenAI / Ollama ...)"]
+    CC --> CM["ChatModel<br/>(벤더 구현 · 교체 지점)"]
+    CM --> LLM["LLM<br/>(Anthropic / OpenAI / Ollama ...)"]
 ```
 
-**`ChatClient`가 모든 것의 중심입니다.** LLM 호출은 이 객체를 통하고, RAG·Tool·메모리 같은 기능은 그 위에 **Advisor**로 얹힙니다. 각 요소는 아래에서 하나씩 다룹니다.
+**`ChatClient`는 모든 LLM 호출이 통과하는 인터페이스입니다.** RAG·Tool·메모리 같은 기능은 그 위에 **Advisor**로 얹히고, 실제 벤더 호출은 그 아래 **`ChatModel`** 구현체가 맡습니다.
+
+이 두 층으로 나뉘어 있어서 이식성이 성립합니다. 벤더를 바꾼다는 것은 `ChatModel` 구현체가 바뀐다는 뜻이고, 그 위의 호출 코드는 그대로입니다. 앞서 든 `JdbcTemplate` 비유가 여기에 해당합니다 — 인터페이스는 그대로 두고 드라이버만 갈아 끼우는 구조입니다.
+
+각 요소는 아래에서 하나씩 다룹니다.
 
 ---
 
