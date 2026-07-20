@@ -1,5 +1,7 @@
-package com.example.demo
+package com.example.demo.basic
 
+import com.example.demo.common.ChatReply
+import com.example.demo.common.ChatRequest
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
@@ -17,8 +19,8 @@ class BasicController(builder: ChatClient.Builder) {
 
     /** 동기 호출: prompt().user().call().content() */
     @PostMapping("/chat")
-    fun chat(@RequestBody req: ChatRequest): Map<String, String?> =
-        mapOf("reply" to chatClient.prompt().user(req.message).call().content())
+    fun chat(@RequestBody req: ChatRequest): ChatReply =
+        ChatReply(chatClient.prompt().user(req.message).call().content())
 
     /** 스트리밍: .stream().content() -> SSE 로 토큰을 흘려보냄 */
     @GetMapping("/stream", produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
@@ -27,9 +29,9 @@ class BasicController(builder: ChatClient.Builder) {
 
     /** 시스템 프롬프트(페르소나)를 호출 시점에 지정 */
     @PostMapping("/persona")
-    fun persona(@RequestBody req: ChatRequest): Map<String, String?> =
-        mapOf(
-            "reply" to chatClient.prompt()
+    fun persona(@RequestBody req: ChatRequest): ChatReply =
+        ChatReply(
+            chatClient.prompt()
                 .system("너는 해적처럼 말하는 챗봇이다. 항상 해적 말투로 답하라.")
                 .user(req.message)
                 .call()

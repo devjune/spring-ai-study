@@ -38,5 +38,9 @@ dependencies {
     implementation("org.springframework.ai:spring-ai-tool-search-tool")
     // MCP 서버 (@McpTool) — MVC 기반
     implementation("org.springframework.ai:spring-ai-starter-mcp-server-webmvc")
+    // 대화 메모리 영속화 — JDBC 저장소.
+    // 운영에선 Postgres 등을 쓰지만, 데모는 설치 없이 돌리려고 H2 파일 모드를 쓴다.
+    implementation("org.springframework.ai:spring-ai-starter-model-chat-memory-repository-jdbc")
+    runtimeOnly("com.h2database:h2")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 }

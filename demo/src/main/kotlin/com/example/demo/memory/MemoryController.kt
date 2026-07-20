@@ -1,5 +1,7 @@
-package com.example.demo
+package com.example.demo.memory
 
+import com.example.demo.common.ChatReply
+import com.example.demo.common.ConversationRequest
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor
 import org.springframework.ai.chat.memory.ChatMemory
@@ -19,9 +21,9 @@ class MemoryController(builder: ChatClient.Builder, chatMemory: ChatMemory) {
         .build()
 
     @PostMapping("/chat")
-    fun chat(@RequestBody req: ConversationRequest): Map<String, String?> =
-        mapOf(
-            "reply" to chatClient.prompt()
+    fun chat(@RequestBody req: ConversationRequest): ChatReply =
+        ChatReply(
+            chatClient.prompt()
                 .user(req.message)
                 .advisors { it.param(ChatMemory.CONVERSATION_ID, req.conversationId) }
                 .call()

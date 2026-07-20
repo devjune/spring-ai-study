@@ -1,5 +1,7 @@
-package com.example.demo
+package com.example.demo.tool
 
+import com.example.demo.common.ChatReply
+import com.example.demo.common.ChatRequest
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.tool.annotation.Tool
 import org.springframework.ai.tool.annotation.ToolParam
@@ -26,9 +28,9 @@ class ToolController(builder: ChatClient.Builder) {
     private val chatClient = builder.build()
 
     @PostMapping("/chat")
-    fun chat(@RequestBody req: ChatRequest): Map<String, String?> =
-        mapOf(
-            "reply" to chatClient.prompt()
+    fun chat(@RequestBody req: ChatRequest): ChatReply =
+        ChatReply(
+            chatClient.prompt()
                 .user(req.message)
                 .tools(WeatherTools())
                 .call()
