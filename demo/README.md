@@ -51,43 +51,14 @@ com.example.demo
 | 7. RAG | `POST /api/rag/chat` | `QuestionAnswerAdvisor` + `VectorStore` |
 | 8. ToolSearch | `POST /api/toolsearch/chat` | `ToolSearchToolCallingAdvisor` |
 | 9. 관측성 | `POST /api/observability/chat` | 토큰 사용량 메타데이터 |
-| 10. MCP | `@McpTool`(add·echo) — MCP 서버로 노출 | `@McpTool` |
-| 11. 커스텀 Advisor | `POST /api/advisor/chat` | `BaseAdvisor` (before/after) |
+| 10. 커스텀 Advisor | `POST /api/advisor/chat` | `BaseAdvisor` (before/after) |
 
 ## 구현 메모
 
 - **API 키** — `application.properties`에서 `${ANTHROPIC_API_KEY}`로 주입. 하드코딩 없음.
 - **RAG 임베딩** — 로컬 ONNX(`spring-ai-starter-model-transformers`). 사내 문서 3건(환불 정책·영업시간)을 인메모리 `SimpleVectorStore`에 시드.
 - **대화 메모리 영속화** — `spring-ai-starter-model-chat-memory-repository-jdbc` + H2 **파일** 모드(`./data/chatmemory`). 도커 없이 실행하려고 H2를 썼고, 운영이라면 같은 코드에 Postgres 설정만 바꾸면 된다. 스키마는 starter 내장 `schema-h2.sql`을 `initialize-schema=always`로 생성한다. `data/`는 gitignore 대상.
-- **MCP** — `spring-ai-starter-mcp-server-webmvc`. `@McpTool`로 `add`, `echo`를 MCP 프로토콜로 노출(이 앱이 MCP 서버). 기동 로그의 `McpServerAnnotationScanner...` WARN은 무해한 BeanPostProcessor 경고.
-
-### MCP 시연 방법 (10번 섹션)
-
-10번만 화면에 버튼이 없다. MCP는 브라우저가 아니라 **다른 에이전트가 붙는** 프로토콜이고, 그게 이 섹션의 요지다. Claude Code를 클라이언트로 붙여 시연한다.
-
-```bash
-claude mcp add --transport http demo http://localhost:8080/mcp
-claude mcp list                    # demo ... ✔ Connected
-# 대화창에서: "demo 서버의 add 로 7 더하기 5 해줘"
-claude mcp remove demo             # 정리
-```
-
-**API 키가 없어도 동작한다.** 도구 목록·실행은 LLM을 거치지 않으므로, `ANTHROPIC_API_KEY`가 잘못돼 다른 섹션이 401로 실패하는 상황에서도 이 섹션은 정상이다.
-
-터미널 없이 확인하려면 JSON-RPC를 직접 호출한다. `initialize` 응답 헤더의 `Mcp-Session-Id`를 이후 요청에 실어야 한다.
-
-```bash
-curl -s -D /tmp/h.txt -X POST http://localhost:8080/mcp \
-  -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' \
-  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"curl","version":"1"}}}'
-
-SID=$(tr -d '\r' < /tmp/h.txt | awk 'tolower($1)=="mcp-session-id:"{print $2}')
-curl -s -X POST http://localhost:8080/mcp \
-  -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' \
-  -H "Mcp-Session-Id: $SID" -d '{"jsonrpc":"2.0","id":2,"method":"tools/list"}'
-```
-- **ToolSearch** — `ToolSearchController`에서 `ToolSearchToolCallingAdvisor`를 regex 인덱스로 수동 구성했다.
-  property 방식(`spring.ai.chat.client.tool-search-advisor.enabled`)도 실재하지만, 켜면 기본 `ToolCallingAdvisor`가 **전역** 교체돼 도구를 쓰지 않는 엔드포인트(1번 기본 채팅, 7번 RAG 등)까지 세션 ID를 요구하며 실패한다. 섹션별로 독립 실행돼야 하는 데모라 수동 구성을 택했다. 자세한 사정은 스터디 문서 "6. ToolSearch" 참고.
+- **MCP** — 화면 섹션은 이번 스터디에서 제외했다. 다만 서버 코드(`mcp/McpTools.kt`)와 의존성은 남아 있어, 앱은 여전히 `/mcp`로 `add`·`echo`를 노출한다(`@McpTool`). 필요해지면 화면 섹션만 되살리면 된다. 기동 로그의 `McpServerAnnotationScanner...` WARN은 무해한 BeanPostProcessor 경고.
 
 ## 검증 상태
 

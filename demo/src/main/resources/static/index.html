@@ -167,21 +167,7 @@ MessageWindowChatMemory.builder()      // 정책: 최근 N개만 유지
 
   <!-- 10 -->
   <section>
-    <h2>10. MCP <span class="tag">@McpTool</span></h2>
-    <p class="desc">이 앱 자체가 <b>MCP 서버</b>입니다. 아래 도구를 MCP 프로토콜로 노출해, 다른 에이전트(MCP 클라이언트)가 표준 규격으로 호출할 수 있습니다. (이 화면에서 직접 호출하는 대신, MCP 클라이언트로 접속해 확인)</p>
-    <pre class="code">@McpTool(name="add")  fun add(a, b) = a + b
-@McpTool(name="echo") fun echo(message) = message</pre>
-    <p class="desc"><b>확인 방법 (터미널):</b> 이 앱을 Claude Code에 MCP 서버로 등록하면, 외부 에이전트가 우리 도구를 직접 호출합니다. <b>API 키 없이도 동작합니다</b> — 도구 목록·실행은 LLM을 거치지 않습니다.</p>
-    <pre class="code">claude mcp add --transport http demo http://localhost:8080/mcp
-claude mcp list                    # demo 연결 확인
-# 대화창에서: "demo 서버의 add 로 7 더하기 5 해줘"</pre>
-    <p class="desc">등록을 되돌리려면 <code>claude mcp remove demo</code>.</p>
-    <div class="out">이 화면에는 버튼이 없습니다. MCP는 브라우저가 아니라 다른 에이전트가 붙는 프로토콜이고, 그 점이 이 섹션의 요지입니다.</div>
-  </section>
-
-  <!-- 11 -->
-  <section>
-    <h2>11. 커스텀 Advisor <span class="tag">BaseAdvisor</span></h2>
+    <h2>10. 커스텀 Advisor <span class="tag">BaseAdvisor</span></h2>
     <p class="desc">앞의 RAG·메모리·ToolSearch가 모두 <b>Advisor</b>였습니다. 직접 만들 수도 있습니다. <code>BaseAdvisor</code>를 구현하고 <code>before</code>(요청)/<code>after</code>(응답)만 채우면 됩니다 — <code>HandlerInterceptor</code>와 같은 자리입니다.</p>
     <p class="desc">여기서는 <b>카드번호를 마스킹해서 LLM에 보내는 가드레일</b>입니다. 아래 <b>모델이 실제로 받은 문장</b>을 보면 번호가 가려진 채 나간 것을 확인할 수 있습니다.</p>
     <pre class="code">class PiiMaskingAdvisor : BaseAdvisor {
