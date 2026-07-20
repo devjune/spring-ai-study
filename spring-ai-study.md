@@ -113,7 +113,7 @@ class ChatController(builder: ChatClient.Builder) {
         chatClient.prompt()
             .user(message)
             .call()
-            .content()
+            .content() ?: ""      // 2.0의 응답 메서드는 nullable
 }
 ```
 
@@ -133,17 +133,26 @@ class ChatController(builder: ChatClient.Builder) {
 
 ```kotlin
 // 1) 텍스트
-val text: String = chatClient.prompt().user(msg).call().content()
+val text: String? = chatClient.prompt().user(msg).call().content()
 
 // 2) 전체 응답 (토큰 사용량 등 메타데이터 포함)
-val resp: ChatResponse = chatClient.prompt().user(msg).call().chatResponse()
-val tokens = resp.metadata.usage.totalTokens
+val resp: ChatResponse? = chatClient.prompt().user(msg).call().chatResponse()
+val tokens = resp?.metadata?.usage?.totalTokens
 
 // 3) 타입 객체 (뒤 Structured Output 참고)
-val movie: Movie = chatClient.prompt().user(msg).call().entity(Movie::class.java)
+val movie: Movie? = chatClient.prompt().user(msg).call().entity(Movie::class.java)
 ```
 
 > `.call()` 자체는 모델을 호출하지 않습니다. `.content()` / `.chatResponse()` / `.entity()`를 호출하는 순간 실제 요청이 나갑니다.
+
+**세 메서드 모두 반환 타입이 nullable입니다.** 2.0은 JSpecify로 널 안전성을 API에 명시했고(`@Nullable`), Kotlin에서는 이것이 `String?` · `ChatResponse?` · `Movie?`로 그대로 드러납니다. 호출부에서 처리해야 합니다.
+
+```kotlin
+.content() ?: ""                                  // 기본값
+.chatResponse() ?: error("Model returned no response")   // 실패로 처리
+```
+
+Java에서는 컴파일 오류가 나지 않지만 `@Nullable` 계약은 동일하므로, null 처리는 여전히 호출부의 책임입니다.
 
 #### 스트리밍
 
@@ -195,6 +204,7 @@ val movie: Movie = chatClient.prompt()
     .user("SF 영화 하나 추천해줘")
     .call()
     .entity(Movie::class.java)
+    ?: error("Failed to convert model response to Movie")
 ```
 
 - 내부 동작: data class로 **스키마 자동 생성 → 프롬프트에 주입 → LLM이 JSON 응답 → `BeanOutputConverter`가 역직렬화**.
@@ -209,9 +219,8 @@ val movie: Movie = chatClient.prompt()
 **LLM은 기본적으로 이전 대화를 기억하지 못합니다.** 매 호출이 독립적입니다. 대화형 챗봇을 만들려면 이전 메시지를 다시 넣어줘야 합니다. `ChatMemory` + `MessageChatMemoryAdvisor`가 이를 자동화합니다.
 
 ```kotlin
-val chatMemory = MessageWindowChatMemory.builder().build()
-
-val chatClient = ChatClient.builder(chatModel)
+// builder: ChatClient.Builder, chatMemory: ChatMemory 를 주입받는다
+val chatClient = builder
     .defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build())
     .build()
 
@@ -427,6 +436,7 @@ graph LR
 `BaseAdvisor`를 구현하면 `before`/`after` 두 개만 채우면 됩니다.
 
 ```kotlin
+// CARD_NUMBER(정규식) · MASKED_PROMPT(컨텍스트 키) 상수 정의는 생략. 전체는 demo/ 참고
 class PiiMaskingAdvisor(private val order: Int = 0) : BaseAdvisor {
 
     // 모델로 나가기 전 — 카드번호를 마스킹한다
@@ -466,9 +476,16 @@ chatClient.prompt()
 
 운영 환경에서는 토큰 사용량과 비용 추적이 중요합니다. Spring AI는 Micrometer와 연동해 토큰 사용량·레이턴시를 관측하며, 토큰·캐시 지표를 통합 API로 제공합니다.
 
+토큰 사용량은 `.content()` 대신 `.chatResponse()`로 받아 메타데이터에서 읽습니다.
+
 ```kotlin
+val response = chatClient.prompt().user(msg).call().chatResponse()
+    ?: error("Model returned no response")
+
 val usage = response.metadata.usage
-usage.totalTokens                 // 총 토큰
+usage.promptTokens                // 입력 토큰
+usage.completionTokens            // 출력 토큰
+usage.totalTokens                 // 합계
 usage.cacheReadInputTokens        // 캐시로 읽은 토큰 (2.0 통합 지표)
 ```
 
@@ -512,6 +529,7 @@ fun supportAgent(
 | 영역           | 1.x                | 2.0                                         |
 | ------------ | ------------------ | ------------------------------------------- |
 | 런타임          | Spring Boot 3      | **Spring Boot 4 / Framework 7 / Jackson 3** |
+| 널 안전성        | 명시 없음              | **JSpecify `@Nullable`** (Kotlin에서 `String?`로 드러남) |
 | Tool Calling | 등록 방식 혼재           | `ToolCallback` 일원화, Advisor 자동              |
 | 대규모 도구       | —                  | **ToolSearch** (점진적 노출)                     |
 | MCP          | SDK 별도             | **Spring AI 1급 편입** (`@McpTool`, 전송 내장)     |
