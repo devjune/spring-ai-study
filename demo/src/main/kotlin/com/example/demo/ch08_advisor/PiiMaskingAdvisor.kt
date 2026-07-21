@@ -1,4 +1,4 @@
-package com.example.demo.advisor
+package com.example.demo.ch08_advisor
 
 import org.springframework.ai.chat.client.ChatClientRequest
 import org.springframework.ai.chat.client.ChatClientResponse

@@ -1,7 +1,7 @@
-package com.example.demo.tool
+package com.example.demo.ch04_tool
 
-import com.example.demo.common.ChatReply
-import com.example.demo.common.ChatRequest
+import com.example.demo.support.ChatReply
+import com.example.demo.support.ChatRequest
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.tool.annotation.Tool
 import org.springframework.ai.tool.annotation.ToolParam

@@ -1,7 +1,7 @@
-package com.example.demo.toolsearch
+package com.example.demo.ch06_toolsearch
 
-import com.example.demo.common.ChatReply
-import com.example.demo.common.ChatRequest
+import com.example.demo.support.ChatReply
+import com.example.demo.support.ChatRequest
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.chat.client.advisor.toolsearch.ToolSearchToolCallingAdvisor
 import org.springframework.ai.chat.memory.ChatMemory

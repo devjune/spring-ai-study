@@ -1,4 +1,4 @@
-package com.example.demo.memory
+package com.example.demo.ch03_memory
 
 import org.springframework.ai.chat.memory.ChatMemory
 import org.springframework.ai.chat.memory.ChatMemoryRepository

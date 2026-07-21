@@ -1,18 +1,12 @@
-package com.example.demo.advisor
+package com.example.demo.ch08_advisor
 
-import com.example.demo.common.ChatRequest
+import com.example.demo.support.ChatRequest
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-
-/** 마스킹 결과를 함께 돌려줘, advisor 가 실제로 프롬프트를 바꿨는지 보여준다. */
-data class MaskedReply(
-    val reply: String?,
-    val sentToModel: String?,
-)
 
 /**
  * 커스텀 Advisor 데모.
@@ -44,3 +38,9 @@ class AdvisorController(builder: ChatClient.Builder) {
         )
     }
 }
+
+/** 마스킹 결과를 함께 돌려줘, advisor 가 실제로 프롬프트를 바꿨는지 보여준다. */
+data class MaskedReply(
+    val reply: String?,
+    val sentToModel: String?,
+)

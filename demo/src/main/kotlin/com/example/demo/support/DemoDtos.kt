@@ -1,4 +1,4 @@
-package com.example.demo.common
+package com.example.demo.support
 
 /** 단순 채팅 요청. 대부분의 데모가 공용으로 쓴다. */
 data class ChatRequest(val message: String)

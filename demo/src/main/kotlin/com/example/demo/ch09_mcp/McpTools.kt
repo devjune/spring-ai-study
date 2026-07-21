@@ -1,4 +1,4 @@
-package com.example.demo.mcp
+package com.example.demo.ch09_mcp
 
 import org.springframework.ai.mcp.annotation.McpTool
 import org.springframework.ai.mcp.annotation.McpToolParam

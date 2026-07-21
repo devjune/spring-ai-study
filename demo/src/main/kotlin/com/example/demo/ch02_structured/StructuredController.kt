@@ -1,14 +1,11 @@
-package com.example.demo.structured
+package com.example.demo.ch02_structured
 
-import com.example.demo.common.ChatRequest
+import com.example.demo.support.ChatRequest
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-
-/** LLM 응답을 담을 타입. 필드 이름·타입이 그대로 JSON 스키마가 된다. */
-data class Movie(val title: String, val year: Int, val director: String)
 
 /**
  * Structured Output — .entity()로 응답을 타입 객체로 받는다.
@@ -28,3 +25,6 @@ class StructuredController(builder: ChatClient.Builder) {
             .entity(Movie::class.java)
             ?: error("Failed to convert model response to Movie")
 }
+
+/** LLM 응답을 담을 타입. 필드 이름·타입이 그대로 JSON 스키마가 된다. */
+data class Movie(val title: String, val year: Int, val director: String)

@@ -1,7 +1,7 @@
-package com.example.demo.rag
+package com.example.demo.ch05_rag
 
-import com.example.demo.common.ChatReply
-import com.example.demo.common.ChatRequest
+import com.example.demo.support.ChatReply
+import com.example.demo.support.ChatRequest
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor
 import org.springframework.ai.vectorstore.VectorStore

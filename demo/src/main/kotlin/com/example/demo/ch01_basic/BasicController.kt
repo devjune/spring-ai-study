@@ -1,7 +1,7 @@
-package com.example.demo.basic
+package com.example.demo.ch01_basic
 
-import com.example.demo.common.ChatReply
-import com.example.demo.common.ChatRequest
+import com.example.demo.support.ChatReply
+import com.example.demo.support.ChatRequest
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping

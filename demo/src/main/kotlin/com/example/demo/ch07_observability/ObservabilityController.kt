@@ -1,19 +1,11 @@
-package com.example.demo.observability
+package com.example.demo.ch07_observability
 
-import com.example.demo.common.ChatRequest
+import com.example.demo.support.ChatRequest
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-
-/** 응답 + 토큰 사용량. 화면이 필드 이름 그대로 표시한다. */
-data class UsageReply(
-    val reply: String?,
-    val promptTokens: Int,
-    val completionTokens: Int,
-    val totalTokens: Int,
-)
 
 /**
  * 관측성 — 응답 메타데이터에서 토큰 사용량을 읽는다.
@@ -39,3 +31,11 @@ class ObservabilityController(builder: ChatClient.Builder) {
         )
     }
 }
+
+/** 응답 + 토큰 사용량. 화면이 필드 이름 그대로 표시한다. */
+data class UsageReply(
+    val reply: String?,
+    val promptTokens: Int,
+    val completionTokens: Int,
+    val totalTokens: Int,
+)

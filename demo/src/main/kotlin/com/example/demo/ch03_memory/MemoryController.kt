@@ -1,7 +1,7 @@
-package com.example.demo.memory
+package com.example.demo.ch03_memory
 
-import com.example.demo.common.ChatReply
-import com.example.demo.common.ConversationRequest
+import com.example.demo.support.ChatReply
+import com.example.demo.support.ConversationRequest
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor
 import org.springframework.ai.chat.memory.ChatMemory
