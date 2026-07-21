@@ -14,15 +14,15 @@
 
 **Java/Spring 생태계에서 AI 모델을 통합하는 표준 추상화입니다.** Python 진영의 LangChain에 대응합니다.
 
-LLM 앱 생태계는 대부분 Python으로 쏠렸지만, 엔터프라이즈 백엔드는 여전히 Java/Spring 위에서 동작합니다. Spring AI는 그 위에서 Spring 방식으로 AI를 통합합니다. 핵심 철학은 **이식성**입니다 — OpenAI든 Anthropic이든 로컬 Ollama든, 코드는 그대로 두고 의존성·설정만 바꿔 모델을 교체할 수 있습니다. `JdbcTemplate`이 DB 벤더를 추상화하던 발상과 같습니다.
+엔터프라이즈 백엔드는 여전히 Java/Spring 위에서 동작하고, Spring AI는 그 위에서 Spring 방식으로 AI를 통합합니다. 핵심 철학은 **이식성**입니다 — OpenAI든 Anthropic이든 로컬 Ollama든, 코드는 그대로 두고 의존성·설정만 바꿔 모델을 교체할 수 있습니다. `JdbcTemplate`이 DB 벤더를 추상화하던 발상과 같습니다.
 
 ### 1.x에서 2.0으로
 
 - **1.0 (2025-05)** — 기본 추상화 등장: `ChatClient`, Structured Output, Tool Calling, RAG.
 - **1.1 (2025-11)** — 안정화, Advisor 체계 정비.
-- **2.0 (2026-06)** — Spring Boot 4 기반으로 토대를 다시 세우고, 무게중심이 **에이전트(Agent)** 로 이동. Tool Calling 표준화, ToolSearch, MCP가 핵심.
+- **2.0 (2026-06)** — Spring Boot 4로 토대를 다시 세운 릴리스. Tool Calling 정리, ToolSearch, MCP 편입.
 
-이 문서는 2.0을 기준으로 설명하며, 1.x와 달라진 부분을 함께 표시합니다.
+이 문서는 2.0을 기준으로 설명하며, 1.x와 달라진 부분을 함께 표시합니다. 변경점은 마지막 "1.x → 2.0 한눈에" 절에 모아 두었습니다.
 
 ---
 
@@ -287,7 +287,9 @@ chatClient.prompt()
 | 등록 방식 | `Function` 빈 · `@Tool` | `ToolCallback`으로 일원화 |
 | 실행 루프 | `internalToolExecutionEnabled` 수동 토글 | `ToolCallingAdvisor` 1급 컴포넌트 + 자동 등록 |
 
-1.x에서는 도구 실행 루프가 모델 구현 안에 들어 있어, `internalToolExecutionEnabled`를 끄면 루프 전체를 직접 짜야 했습니다. 2.0은 이 루프를 `ToolCallingAdvisor`로 꺼내 Advisor 체인의 한 요소로 만들었습니다. `.tools()`만 넘기면 "호출 요청 → 함수 실행 → 결과 재주입"이 자동으로 돌고, 앞뒤에 다른 Advisor를 끼워 넣어 개입할 수 있습니다.
+1.x에서는 도구 실행 루프가 **각 `ChatModel` 구현 안에 사적으로** 들어 있어 끼어들 자리가 없었습니다. 2.0은 이 루프를 `ToolCallingAdvisor`로 꺼내 Advisor 체인의 한 요소로 만들었습니다. `.tools()`만 넘기면 "호출 요청 → 함수 실행 → 결과 재주입"이 자동으로 돌고, 앞뒤에 다른 Advisor를 끼워 넣어 개입할 수 있습니다.
+
+핵심은 **체인이 루프를 지원한다**는 점입니다. Advisor가 하위 체인으로 다시 들어갈 수 있어서, 도구 호출 루프·Structured Output 재시도(`StructuredOutputValidationAdvisor`)·평가 루프가 모두 이 하나의 메커니즘 위에서 돕니다. 에이전트를 "쌓을 수 있게" 된 것이 여기입니다.
 
 > **제어의 역전(IoC).** 기존 백엔드는 개발자가 모든 분기를 작성했습니다(`if A else B`). Tool Calling은 "도구를 제공할 테니 목표를 달성하라"고 **위임**하는 방식입니다. LLM이 오케스트레이터가 되고, 개발자는 검증된 도구만 제공합니다. 이것이 **에이전트의 본질**입니다.
 
@@ -538,7 +540,15 @@ fun supportAgent(
 | 토큰·캐시 지표     | 벤더별 제각각            | 통합 `Usage` API                              |
 | 벤더           | 변형 다수              | 정리 (예: OpenAI 3종 → 1종)                      |
 
-Spring AI는 **"LLM 호출 라이브러리"에서 "에이전트 플랫폼"으로** 이동했습니다.
+### 그래서 2.0은 "에이전트 프레임워크"인가
+
+에이전트라는 말이 자주 나오지만, 코어에는 `Agent`라는 이름의 무언가가 없습니다. BOM 2.0.0의 아티팩트 164개 중 이름에 `agent`가 들어간 것은 하나도 없고, 발표문이 소개하는 에이전트 도구들(`spring-ai-agent-utils`, `spring-ai-session`)은 모두 코어 밖 커뮤니티 프로젝트입니다.
+
+> "You could call tools; you could not build on top of tool calling." — [Spring AI 2.0.0 GA 발표](https://spring.io/blog/2026/06/12/spring-ai-2-0-0-GA-available-now)
+
+1.x는 도구 실행 루프가 각 모델 구현 안에 숨어 있었습니다(§4). 2.0은 그 루프를 Advisor 체인으로 꺼냈고, 체인이 재진입을 지원하면서 ToolSearch(§6)와 커스텀 Advisor(§8)가 같은 자리에 얹힙니다.
+
+**바로 앞에서 만든 사내 문서 Q&A 에이전트가 그 결과물입니다** — 프레임워크가 준 것은 조립할 자리이고, 에이전트는 우리가 만들었습니다.
 
 ---
 
