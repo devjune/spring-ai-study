@@ -24,4 +24,5 @@ spring-ai-tool-search-tool = { module = "org.springframework.ai:spring-ai-tool-s
 spring-ai-starter-mcp-server-webmvc = { module = "org.springframework.ai:spring-ai-starter-mcp-server-webmvc" }
 spring-ai-starter-model-chat-memory-repository-jdbc = { module = "org.springframework.ai:spring-ai-starter-model-chat-memory-repository-jdbc" }
 h2 = { module = "com.h2database:h2" }
+spring-boot-h2console = { module = "org.springframework.boot:spring-boot-h2console" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect" }
