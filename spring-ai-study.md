@@ -191,7 +191,7 @@ val movie: Movie = chatClient.prompt()
     ?: error("Failed to convert model response to Movie")
 ```
 
-- 내부 동작: data class로 **스키마 자동 생성 → 프롬프트에 주입 → LLM이 JSON 응답 → `BeanOutputConverter`가 역직렬화**.
+- 내부 동작: data class로 **JSON 스키마를 만들어 요청에 함께 보내고**("이 형식으로만 답하라"는 지시와 함께), **LLM이 처음부터 JSON으로 답하면**, `BeanOutputConverter`가 역직렬화합니다. 응답 텍스트에서 필드를 뽑아내는 게 아니라, 애초에 그 형식으로 달라고 시키는 방식입니다.
 - 컬렉션은 `entity(object : ParameterizedTypeReference<List<Movie>>() {})`로 받습니다.
 - `.entity()` 자체는 재시도하지 않습니다. 재시도는 `StructuredOutputValidationAdvisor`가 별도로 담당합니다.
 
