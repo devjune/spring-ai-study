@@ -6,7 +6,7 @@
 
 이 문서는 Spring AI 2.0을 기준으로 핵심 개념과 사용법을 정리합니다. Spring AI를 처음 접하는 사람도 따라올 수 있도록 시작 설정부터 실제 조합 예제까지 다룹니다.
 
-이 문서의 예제는 [`demo/`](demo/)에서 실제로 실행할 수 있습니다. `ANTHROPIC_API_KEY`만 있으면 되고, 브라우저 화면에서 기능별로 눌러 확인합니다.
+이 문서의 예제는 [`demo/`](demo/)에서 실제로 실행할 수 있습니다. `ANTHROPIC_API_KEY`만 있으면 되고(첫 기동만 임베딩 모델 다운로드로 네트워크 필요), 브라우저 화면에서 기능별로 눌러 확인합니다. 화면 각 섹션에 이 문서의 해당 장(§)이 표시되어 있습니다.
 
 ---
 
@@ -91,7 +91,7 @@ graph LR
 implementation("org.springframework.ai:spring-ai-starter-model-anthropic")
 ```
 
-> 벤더를 바꾸려면 스타터만 교체합니다. OpenAI는 `spring-ai-starter-model-openai`, 로컬은 `spring-ai-starter-model-ollama`. **코드는 그대로입니다.**
+> 벤더를 바꾸려면 스타터만 교체합니다. **코드는 그대로입니다.** 구체 예시는 아래 설정 표 참고.
 
 ### 2. 설정
 
@@ -101,6 +101,16 @@ spring.ai.anthropic.chat.model=claude-sonnet-4-5
 ```
 
 > 1.x 자료를 보면 `spring.ai.anthropic.chat.options.model`로 나옵니다. 2.0에서 `options` 마디가 빠졌습니다. 옛 이름도 아직 동작하지만 기동 시 deprecated 경고가 뜹니다. `max-tokens`·`temperature`·`top-p` 등 16개 속성이 모두 같은 방식으로 바뀌었습니다.
+
+벤더 교체는 이 두 단계(스타터·설정)가 전부입니다. 예를 들어 아래 셋은 **모두 같은 `ChatClient` 코드로 동작합니다.**
+
+| 벤더 | 스타터 | 설정 |
+| --- | --- | --- |
+| Anthropic | `spring-ai-starter-model-anthropic` | `spring.ai.anthropic.api-key=...`<br>`spring.ai.anthropic.chat.model=claude-sonnet-4-5` |
+| OpenAI | `spring-ai-starter-model-openai` | `spring.ai.openai.api-key=...`<br>`spring.ai.openai.chat.model=gpt-5` |
+| Ollama | `spring-ai-starter-model-ollama` | `spring.ai.ollama.chat.model=llama3.2` |
+
+Ollama는 로컬에서 모델을 직접 돌리므로 **API 키가 없습니다**(기본 접속지 `http://localhost:11434`). 외부망이 막힌 환경에서 유일하게 동작하는 선택지이기도 합니다. 전체 벤더 목록은 앞의 "지원 범위" 참고.
 
 ### 3. 첫 호출
 
@@ -328,7 +338,7 @@ chatClient.prompt()
 - **Augment(증강)** — 찾은 문서를 질문과 함께 프롬프트에 붙입니다.
 - **Generate(생성)** — LLM이 그 문서를 근거로 답합니다.
 
-Spring AI에서는 `QuestionAnswerAdvisor` 하나만 붙이면 이 흐름이 자동으로 돕니다.
+Spring AI에서는 `QuestionAnswerAdvisor` 하나만 붙이면 이 흐름이 자동으로 돌아갑니다.
 
 ```kotlin
 chatClient.prompt()
@@ -355,7 +365,7 @@ vectorStore.add(documents)                    // 문서 저장 (임베딩 자동
 vectorStore.similaritySearch("환불 정책")       // 의미가 가까운 문서 top-N 검색
 ```
 
-실제 저장소(pgvector, Redis, Chroma 등)는 구현체를 갈아 끼우는 식이라, 어느 것을 쓰든 앱 코드는 그대로입니다. 의존성만 추가하면 됩니다(`spring-ai-autoconfigure-vector-store-pgvector` 등).
+실제 저장소(pgvector, Redis, Chroma 등)는 구현체를 갈아 끼우는 식이라, 어느 것을 쓰든 앱 코드는 그대로입니다. 스타터만 추가하면 됩니다(`spring-ai-starter-vector-store-pgvector` 등).
 
 #### 임베딩 모델 — 기본값은 어디서 오나
 
@@ -535,7 +545,11 @@ spring.ai.chat.observations.log-prompt=true       # 기본 false
 spring.ai.chat.observations.log-completion=true   # 기본 false
 ```
 
-> 이 두 옵션은 프롬프트·응답 전문을 로그로 내보냅니다. 개인정보나 사내 문서가 그대로 남을 수 있으므로 운영 환경에서는 신중해야 합니다. 기본값이 `false`인 이유이기도 합니다.
+켜면 `ChatModelPromptContentObservationHandler`가 모델에 나간 프롬프트 전문을 INFO로 찍습니다. RAG가 끼워넣은 검색 문서, 메모리가 붙인 과거 대화가 여기서 그대로 보이므로 데모·디버깅에 특히 유용합니다. 데모 앱은 actuator와 함께 이 두 옵션을 켜 둡니다.
+
+> **이 옵션들은 `ObservationRegistry` 빈이 있어야 동작합니다.** actuator 없이 프로퍼티만 켜면 Spring AI가 NOOP registry로 폴백해, 오류도 없이 조용히 아무것도 찍히지 않습니다(핸들러 빈은 등록되지만 한 번도 불리지 않습니다). 위의 지표와 마찬가지로 actuator가 전제입니다.
+
+> 프롬프트·응답 전문에는 개인정보나 사내 문서가 그대로 남을 수 있으므로 운영 환경에서는 신중해야 합니다. 기본값이 `false`인 이유이기도 합니다.
 
 ---
 
