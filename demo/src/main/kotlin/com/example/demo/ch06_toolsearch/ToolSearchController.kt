@@ -1,6 +1,5 @@
 package com.example.demo.ch06_toolsearch
 
-import com.example.demo.support.ChatReply
 import com.example.demo.support.ChatRequest
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.chat.client.advisor.toolsearch.ToolSearchToolCallingAdvisor
@@ -14,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.time.LocalDateTime
+import kotlin.reflect.full.declaredFunctions
+import kotlin.reflect.full.findAnnotation
 
 /** 여러 개의 도구. ToolSearch가 질문에 맞는 것만 선별해 LLM에 노출한다. */
 class ManyTools {
@@ -28,6 +29,13 @@ class ManyTools {
 
     @Tool(description = "현재 서버 시간을 반환한다")
     fun now() = LocalDateTime.now().toString()
+
+    companion object {
+        /** 후보 도구 목록. 하드코딩하지 않고 뽑아내, @Tool 을 추가해도 따로 손댈 곳이 없다. */
+        val catalog: List<String> = ManyTools::class.declaredFunctions
+            .mapNotNull { fn -> fn.findAnnotation<Tool>()?.let { "${fn.name} — ${it.description}" } }
+            .sorted()
+    }
 }
 
 /**
@@ -50,9 +58,10 @@ class ToolSearchController(builder: ChatClient.Builder) {
         .build()
 
     @PostMapping("/chat")
-    fun chat(@RequestBody req: ChatRequest): ChatReply =
-        ChatReply(
-            chatClient.prompt()
+    fun chat(@RequestBody req: ChatRequest): ToolSearchReply =
+        ToolSearchReply(
+            availableTools = ManyTools.catalog,
+            reply = chatClient.prompt()
                 .advisors(toolSearchAdvisor)
                 // ToolSearch는 세션별 도구 인덱스를 유지하므로 세션 ID가 필요하다.
                 .advisors { it.param(ChatMemory.CONVERSATION_ID, "toolsearch-demo") }
@@ -62,3 +71,9 @@ class ToolSearchController(builder: ChatClient.Builder) {
                 .content(),
         )
 }
+
+/** 후보 도구를 함께 돌려줘, ToolSearch 가 무엇 중에서 골랐는지 보여준다. */
+data class ToolSearchReply(
+    val availableTools: List<String>,
+    val reply: String?,
+)

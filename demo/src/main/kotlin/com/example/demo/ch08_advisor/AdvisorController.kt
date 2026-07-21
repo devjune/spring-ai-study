@@ -32,15 +32,17 @@ class AdvisorController(builder: ChatClient.Builder) {
             ?: error("Model returned no response")
 
         return MaskedReply(
-            reply = response.chatResponse()?.result?.output?.text,
+            original = req.message,
             // advisor 가 컨텍스트에 남긴 값. 마스킹이 없었다면 null.
             sentToModel = response.context()[PiiMaskingAdvisor.MASKED_PROMPT] as String?,
+            reply = response.chatResponse()?.result?.output?.text,
         )
     }
 }
 
 /** 마스킹 결과를 함께 돌려줘, advisor 가 실제로 프롬프트를 바꿨는지 보여준다. */
 data class MaskedReply(
-    val reply: String?,
+    val original: String,
     val sentToModel: String?,
+    val reply: String?,
 )

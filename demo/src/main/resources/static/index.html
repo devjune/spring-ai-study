@@ -159,9 +159,10 @@ MessageWindowChatMemory.builder()      // 정책: 최근 N개만 유지
   <section>
     <h2>8. ToolSearch <span class="tag">ToolSearchToolCallingAdvisor</span></h2>
     <p class="desc">도구가 여러 개(날씨·덧셈·주문조회·시간)일 때, 질문에 맞는 것만 골라 LLM에 노출합니다.</p>
+    <p class="desc">전송하면 <b>availableTools</b>에 후보 도구 전체가, <b>reply</b>에 그중 실제로 쓰인 결과가 표시됩니다.</p>
     <pre class="code">.advisors(toolSearchAdvisor).tools(ManyTools())</pre>
     <textarea id="ts-in">사용자 준의 최근 주문 상태 알려줘.</textarea>
-    <button data-post="/api/toolsearch/chat" data-in="ts-in" data-out="ts-out" data-field="reply">전송</button>
+    <button data-post="/api/toolsearch/chat" data-in="ts-in" data-out="ts-out">전송</button>
     <div class="out" id="ts-out"></div>
   </section>
 
