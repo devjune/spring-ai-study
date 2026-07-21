@@ -502,6 +502,18 @@ spring.ai.chat.observations.log-completion=true   # 기본 false
 
 앞의 기능들을 하나의 `ChatClient`에 결합한 예시입니다. RAG(사내 문서), 대화 메모리, 실제 조회 도구(Tool)를 함께 얹으면 에이전트가 됩니다.
 
+도구부터 — §4의 `WeatherTools`와 똑같은 모양입니다.
+
+```kotlin
+class OrderTools {
+    @Tool(description = "특정 사용자의 최근 주문 상태를 조회한다")
+    fun getOrder(@ToolParam(description = "사용자 ID") userId: String): String =
+        "$userId 의 최근 주문: 2026-07-14 결제, 배송 완료"
+}
+```
+
+셋을 하나의 빌더에 얹습니다.
+
 ```kotlin
 @Bean
 fun supportAgent(
@@ -519,13 +531,27 @@ fun supportAgent(
         .build()
 ```
 
-이 하나의 에이전트가 이렇게 동작합니다.
+부르는 쪽입니다. **대화 ID를 넘기는 것을 빼먹으면 안 됩니다**(§3) — 메모리 Advisor를 얹은 순간부터 필수입니다.
 
-1. 사용자가 "지난주 주문 환불돼요?"라고 묻는다.
-2. **RAG** — 환불 정책 문서를 검색해 근거로 붙인다.
-3. **Tool** — LLM이 `getOrder(userId)`를 호출해 실제 주문 상태를 조회한다.
-4. **Memory** — 이전 대화("지난주 주문"이 무엇인지)를 기억한다.
-5. 정책 + 실제 데이터에 근거한 답을 만든다.
+```kotlin
+@RestController
+class SupportController(private val supportAgent: ChatClient) {
+
+    @PostMapping("/support")
+    fun ask(@RequestParam conversationId: String, @RequestParam message: String): String? =
+        supportAgent.prompt()
+            .user(message)
+            .advisors { it.param(ChatMemory.CONVERSATION_ID, conversationId) }
+            .call()
+            .content()
+}
+```
+
+`"지난주 주문 환불돼요?"` 한 마디에 이렇게 돌아갑니다.
+
+1. **모델 호출 전** — 메모리가 이전 대화를 붙이고("지난주 주문"이 무엇인지), RAG가 환불 정책 문서를 검색해 근거로 붙입니다. 둘 다 Advisor라 프롬프트를 채우는 단계입니다.
+2. **모델이 판단** — 정책만으로는 답할 수 없으니 `getOrder(userId)`를 호출해 달라고 요청합니다.
+3. **앱이 실행 → 재호출** — 도구 결과를 붙여 다시 물으면, 모델이 정책과 실제 주문 데이터를 함께 근거로 답을 만듭니다.
 
 개발자가 만드는 것은 검증된 도구와 신뢰할 수 있는 지식이고, 그것들을 언제 어떻게 조합할지는 LLM이 정합니다.
 
