@@ -97,8 +97,10 @@ implementation("org.springframework.ai:spring-ai-starter-model-anthropic")
 
 ```properties
 spring.ai.anthropic.api-key=${ANTHROPIC_API_KEY}
-spring.ai.anthropic.chat.options.model=claude-sonnet-4-5
+spring.ai.anthropic.chat.model=claude-sonnet-4-5
 ```
+
+> 1.x 자료를 보면 `spring.ai.anthropic.chat.options.model`로 나옵니다. 2.0에서 `options` 마디가 빠졌습니다. 옛 이름도 아직 동작하지만 기동 시 deprecated 경고가 뜹니다. `max-tokens`·`temperature`·`top-p` 등 16개 속성이 모두 같은 방식으로 바뀌었습니다.
 
 ### 3. 첫 호출
 
