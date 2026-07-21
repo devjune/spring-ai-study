@@ -22,7 +22,7 @@
 - **1.1 (2025-11)** — 안정화, Advisor 체계 정비.
 - **2.0 (2026-06)** — Spring Boot 4로 토대를 다시 세운 릴리스. Tool Calling 정리, ToolSearch, MCP 편입.
 
-이 문서는 2.0을 기준으로 설명하며, 1.x와 달라진 부분을 함께 표시합니다. 변경점은 마지막 "1.x → 2.0 한눈에" 절에 모아 두었습니다.
+이 문서는 **2.0만 기준으로** 설명합니다. 1.x를 몰라도 읽는 데 지장이 없고, 기존 코드를 올려야 하는 경우에 필요한 변경점은 마지막 "1.x → 2.0 한눈에" 절에 모아 두었습니다.
 
 ---
 
@@ -215,7 +215,7 @@ chatClient.prompt()
     .content()
 ```
 
-> **1.x → 2.0 변화** — 대화 ID를 빌더의 `.conversationId()`에 넣던 방식이 사라지고, **호출 시점에 `ChatMemory.CONVERSATION_ID`로 넘기는 방식이 필수**가 됐습니다. 누락하면 예외가 납니다.
+> 대화 ID는 **호출 시점에** 넘겨야 합니다. 빌더에 미리 박아둘 수 없고, 누락하면 예외가 납니다.
 
 #### 대화를 어디에 저장할 것인가
 
@@ -287,16 +287,11 @@ chatClient.prompt()
     .content()
 ```
 
-2.0에서 달라진 것은 등록 방식보다 **실행 루프의 통제권**입니다.
+위 다이어그램의 반복 구간 — "호출 요청 → 함수 실행 → 결과 재주입" — 은 `ToolCallingAdvisor`가 돌립니다. `.tools()`를 넘기면 자동으로 등록되므로 따로 할 일은 없습니다.
 
-| | 1.x | 2.0 |
-| --- | --- | --- |
-| 등록 방식 | `Function` 빈 · `@Tool` | `ToolCallback`으로 일원화 |
-| 실행 루프 | `internalToolExecutionEnabled` 수동 토글 | `ToolCallingAdvisor` 1급 컴포넌트 + 자동 등록 |
+중요한 것은 **이 루프가 Advisor 체인 안에서 돈다**는 점입니다(큰 그림에서 필터에 빗댄 그 자리). 도구 실행 앞뒤에 다른 Advisor를 끼워 넣어 로깅·권한 확인·마스킹 같은 것을 걸 수 있고, 만드는 방법은 §8에서 다룹니다.
 
-1.x에서는 도구 실행 루프가 **각 `ChatModel` 구현 안에 사적으로** 들어 있어 끼어들 자리가 없었습니다. 2.0은 이 루프를 `ToolCallingAdvisor`로 꺼내 Advisor 체인의 한 요소로 만들었습니다. `.tools()`만 넘기면 "호출 요청 → 함수 실행 → 결과 재주입"이 자동으로 돌고, 앞뒤에 다른 Advisor를 끼워 넣어 개입할 수 있습니다.
-
-핵심은 **체인이 루프를 지원한다**는 점입니다. Advisor가 하위 체인으로 다시 들어갈 수 있어서, 도구 호출 루프·Structured Output 재시도(`StructuredOutputValidationAdvisor`)·평가 루프가 모두 이 하나의 메커니즘 위에서 돕니다. 에이전트를 "쌓을 수 있게" 된 것이 여기입니다.
+체인은 **재진입**도 지원합니다. Advisor가 하위 체인으로 다시 들어갈 수 있어서, 도구 호출 루프·Structured Output 재시도(`StructuredOutputValidationAdvisor`)·평가 루프가 모두 이 하나의 메커니즘 위에서 돕니다.
 
 > **제어의 역전(IoC).** 기존 백엔드는 개발자가 모든 분기를 작성했습니다(`if A else B`). Tool Calling은 "도구를 제공할 테니 목표를 달성하라"고 **위임**하는 방식입니다. LLM이 오케스트레이터가 되고, 개발자는 검증된 도구만 제공합니다. 이것이 **에이전트의 본질**입니다.
 
@@ -389,7 +384,7 @@ Spring AI 2.0은 MCP를 1급으로 지원합니다.
 
 - **서버 애노테이션** — `@McpTool` / `@McpResource` / `@McpPrompt` / `@McpComplete`. `@Tool`처럼 선언만 하면 함수가 MCP 서버로 노출되고, JSON 스키마는 자동 생성됩니다.
 - **클라이언트** — 다른 곳에서 만든 MCP 서버를 내 에이전트의 도구로 가져다 씁니다.
-- **전송 편입** — 기존에 MCP Java SDK에 있던 전송(webflux/webmvc)이 Spring AI 프로젝트로 이동했습니다(그룹 id `io.modelcontextprotocol.sdk` → `org.springframework.ai`, breaking change). 기본 전송은 Streamable HTTP입니다.
+- **전송 내장** — WebMVC/WebFlux 전송이 Spring AI에 들어 있어 별도 SDK 의존성이 필요 없습니다. 기본 전송은 Streamable HTTP이고, 로컬 프로세스끼리 붙일 때 쓰는 STDIO도 그대로 있습니다.
 
 ```kotlin
 @Component
@@ -402,7 +397,7 @@ class CalculatorTools {
 }
 ```
 
-> 1.0의 이식성은 "벤더를 바꿔도 코드 유지"였습니다. MCP는 이식성을 **"도구와 에이전트가 벤더·언어를 넘어 연결된다"** 로 확장합니다. 한 서비스가 다른 에이전트의 도구가 되고, 반대로 다른 도구가 그 에이전트의 수단이 됩니다.
+> 지금까지 이야기한 이식성은 "벤더를 바꿔도 코드 유지"였습니다. MCP는 이식성을 **"도구와 에이전트가 벤더·언어를 넘어 연결된다"** 로 확장합니다. 한 서비스가 다른 에이전트의 도구가 되고, 반대로 다른 도구가 그 에이전트의 수단이 됩니다.
 
 ### 8. Advisor 직접 만들기
 
@@ -480,7 +475,7 @@ usage.totalTokens                 // 합계
 usage.cacheReadInputTokens        // 캐시로 읽은 토큰 (2.0 통합 지표)
 ```
 
-1.x에서는 캐시 토큰 같은 지표를 벤더별 응답에서 각자 꺼내야 했습니다. 2.0은 이를 `Usage` 인터페이스로 통합해, 벤더가 바뀌어도 같은 코드로 읽습니다.
+캐시 토큰처럼 벤더마다 이름이 다르던 지표도 `Usage` 인터페이스가 흡수합니다. 벤더가 바뀌어도 위 코드는 그대로입니다.
 
 #### 지표로 모으기
 
@@ -540,7 +535,7 @@ fun supportAgent(
 | ------------ | ------------------ | ------------------------------------------- |
 | 런타임          | Spring Boot 3      | **Spring Boot 4 / Framework 7 / Jackson 3** |
 | 널 안전성        | 명시 없음              | **JSpecify `@Nullable`** (Kotlin에서 `String?`로 드러남) |
-| Tool Calling | 실행 루프가 모델 구현 내부      | `ToolCallingAdvisor`로 분리, Advisor 체인에 편입      |
+| Tool Calling | 실행 루프가 모델 구현 내부<br>(`internalToolExecutionEnabled`) | `ToolCallingAdvisor`로 분리, Advisor 체인에 편입 (자동 등록) |
 | 대규모 도구       | —                  | **ToolSearch** (점진적 노출)                     |
 | MCP          | SDK 별도             | **Spring AI 1급 편입** (`@McpTool`, 전송 내장)     |
 | 대화 메모리       | 빌더에 conversationId | 호출 시점 `CONVERSATION_ID` 필수                  |
