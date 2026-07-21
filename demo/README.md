@@ -29,21 +29,21 @@ export ANTHROPIC_API_KEY=sk-ant-...
 
 ## 코드 구조
 
-기능 하나가 패키지 하나다. 문서에서 궁금한 기능을 그 이름의 패키지에서 바로 찾을 수 있다.
+기능 하나가 패키지 하나다. 앞의 `chNN`은 학습 자료의 장 번호라, 문서에서 궁금한 기능을 번호로 바로 찾을 수 있다.
 
 ```
 com.example.demo
 ├── DemoApplication.kt
-├── common/         ChatRequest, ConversationRequest (공용 DTO)
-├── basic/          ChatClient 동기 호출 · 스트리밍 · 페르소나
-├── structured/     .entity() + Movie 타입
-├── memory/         MessageChatMemoryAdvisor + ChatMemory 빈
-├── tool/           @Tool (WeatherTools)
-├── rag/            QuestionAnswerAdvisor + VectorStore 시드
-├── toolsearch/     ToolSearchToolCallingAdvisor (ManyTools)
-├── mcp/            @McpTool — 이 앱을 MCP 서버로 노출
-├── observability/  토큰 사용량 메타데이터
-└── advisor/        커스텀 Advisor (BaseAdvisor) — 카드번호 마스킹 가드레일
+├── support/            ChatRequest, ConversationRequest, ChatReply (공용 DTO)
+├── ch01_basic/         ChatClient 동기 호출 · 스트리밍 · 페르소나
+├── ch02_structured/    .entity() + Movie 타입
+├── ch03_memory/        MessageChatMemoryAdvisor + ChatMemory 빈
+├── ch04_tool/          @Tool (WeatherTools)
+├── ch05_rag/           QuestionAnswerAdvisor + VectorStore 시드
+├── ch06_toolsearch/    ToolSearchToolCallingAdvisor (ManyTools)
+├── ch07_observability/ 토큰 사용량 메타데이터
+├── ch08_advisor/       커스텀 Advisor (BaseAdvisor) — 카드번호 마스킹 가드레일
+└── ch09_mcp/           @McpTool — 이 앱을 MCP 서버로 노출
 ```
 
 ## 데모 ↔ 문서 예제 매핑
