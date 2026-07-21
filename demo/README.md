@@ -17,7 +17,15 @@ export ANTHROPIC_API_KEY=sk-ant-...
 
 브라우저에서 http://localhost:8080 접속.
 
-> 최초 실행 시 RAG용 임베딩 모델(all-MiniLM-L6-v2, ONNX)을 내려받는다(수십 MB, 로컬 실행이라 Anthropic 외 추가 키 불필요).
+> 최초 실행 시 RAG용 임베딩 모델(all-MiniLM-L6-v2, ONNX)을 내려받는다(수십 MB, 로컬 실행이라 Anthropic 외 추가 키 불필요). 한 번 받으면 로컬에 캐시되므로 이후 기동은 오프라인으로 동작한다.
+>
+> **외부망이 막힌 사내망이면 이 다운로드가 실패해 임베딩 초기화가 깨진다.** 기본 URI가 githubusercontent라서다. 캐시를 미리 채워 두거나, 아래 프로퍼티를 사내 미러로 돌린다.
+>
+> ```properties
+> spring.ai.embedding.transformer.onnx.model-uri=...     # ONNX 모델 (미러)
+> spring.ai.embedding.transformer.tokenizer.uri=...      # 토크나이저 (미러)
+> spring.ai.embedding.transformer.cache.directory=...    # 캐시 위치
+> ```
 
 ## 코드 구조
 
