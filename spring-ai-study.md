@@ -47,20 +47,23 @@
 
 ## 큰 그림
 
+새 이름이 여럿 나오지만, 지금 기억할 것은 **`ChatClient` 하나**입니다. 나머지는 그 주변에 어떻게 붙는지만 보면 됩니다.
+
 ```mermaid
 graph LR
-    App["Spring Boot 4 App"] --> CC["ChatClient"]
-    CC --> SO["Structured Output"]
-    CC --> Mem["ChatMemory<br/>(대화 기억)"]
-    CC --> Adv["Advisors"]
-    Adv --> RAG["RAG<br/>(QuestionAnswerAdvisor)"]
-    Adv --> Tools["Tool Calling<br/>(+ ToolSearch)"]
-    Tools --> MCP["MCP<br/>(외부 도구)"]
-    CC --> CM["ChatModel<br/>(벤더 구현 · 교체 지점)"]
-    CM --> LLM["LLM<br/>(Anthropic / OpenAI / Ollama ...)"]
+    App["내 코드<br/>(Controller · Service)"] --> CC["ChatClient"]
+    CC --> CM["ChatModel<br/>(벤더 구현)"]
+    CM --> LLM["LLM<br/>Anthropic · OpenAI · Ollama"]
+    Adv["Advisor<br/>(RAG · 대화 기억 · 도구)"] -. 끼워 넣는다 .-> CC
 ```
 
-**`ChatClient`는 모든 LLM 호출이 통과하는 인터페이스입니다.** RAG·Tool·메모리 같은 기능은 그 위에 **Advisor**로 얹히고, 실제 벤더 호출은 그 아래 **`ChatModel`** 구현체가 맡습니다. 벤더를 바꾼다는 것은 이 `ChatModel`이 바뀐다는 뜻이고, 그 위의 호출 코드는 그대로입니다 — 이식성이 성립하는 지점입니다.
+**1. 내가 만지는 것은 `ChatClient` 하나입니다.** 이 문서의 모든 예제가 `chatClient.prompt()...`로 시작합니다.
+
+**2. 벤더는 그 아래 `ChatModel`이 감춥니다.** 벤더를 바꾼다는 것은 이 구현체가 바뀐다는 뜻이고, 위의 호출 코드는 그대로입니다. 앞서 든 `JdbcTemplate` 비유가 여기입니다 — 인터페이스는 두고 드라이버만 갑니다.
+
+**3. 기능은 `Advisor`로 끼워 넣습니다.** RAG도 대화 기억도 도구 호출도 전부 `ChatClient` 호출을 가로채는 Advisor입니다. 서블릿 필터나 `HandlerInterceptor`와 같은 자리라고 보면 됩니다.
+
+이름은 지금 외우지 않아도 됩니다. §1부터 이 그림의 자리를 하나씩 채웁니다.
 
 ---
 
@@ -401,7 +404,7 @@ class CalculatorTools {
 
 **RAG, 대화 메모리, ToolSearch는 모두 Advisor였습니다.** `QuestionAnswerAdvisor`, `MessageChatMemoryAdvisor`, `ToolSearchToolCallingAdvisor` — 앞에서 `.advisors(...)`로 붙인 것들이 전부 같은 확장점입니다. 직접 만들 수도 있습니다.
 
-Advisor는 `ChatClient` 호출을 가로채는 체인입니다. **서블릿 필터나 `HandlerInterceptor`와 같은 자리**로, 요청이 모델로 나가기 전과 응답이 돌아온 후에 개입합니다.
+큰 그림에서 서블릿 필터에 빗댄 그 자리입니다. Advisor는 `ChatClient` 호출을 가로채는 체인이고, 요청이 모델로 나가기 전과 응답이 돌아온 후에 개입합니다.
 
 ```mermaid
 graph LR
