@@ -70,11 +70,12 @@
     <small>Spring Boot 4 · Spring AI 2.0 · Anthropic (claude-sonnet-4-5)</small>
   </h1>
   <p class="intro">스터디 문서 <code>spring-ai-study.md</code>의 예제를 실제로 실행합니다.
-  각 섹션은 <b>무엇을 보여주는지</b>와 <b>핵심 코드</b>를 함께 표시합니다.</p>
+  각 섹션은 <b>무엇을 보여주는지</b>와 <b>핵심 코드</b>를 함께 표시하고, 오른쪽 태그가 문서의 해당 장(§)입니다.
+  문서 §7(MCP)은 MCP 클라이언트가 필요해 브라우저 시연이 없습니다.</p>
 
   <!-- 1 -->
   <section>
-    <h2>1. 기본 채팅 <span class="tag">ChatClient</span></h2>
+    <h2>1. 기본 채팅 <span class="tag">ChatClient</span><span class="tag">문서 §1</span></h2>
     <p class="desc">가장 기본. LLM에 메시지를 보내고 텍스트 응답을 받습니다.</p>
     <pre class="code">chatClient.prompt().user(msg).call().content()</pre>
     <textarea id="basic-in">타입스크립트가 뭐야? 한 문장으로.</textarea>
@@ -84,7 +85,7 @@
 
   <!-- 2 -->
   <section>
-    <h2>2. 스트리밍 <span class="tag">.stream()</span></h2>
+    <h2>2. 스트리밍 <span class="tag">.stream()</span><span class="tag">문서 §1</span></h2>
     <p class="desc">응답을 한 번에 받지 않고 토큰이 오는 대로 흘려보냅니다(타이핑 효과). 반환은 Flux → SSE.</p>
     <pre class="code">chatClient.prompt().user(msg).stream().content()  // Flux&lt;String&gt;</pre>
     <textarea id="stream-in">봄에 대한 짧은 시 한 편.</textarea>
@@ -94,7 +95,7 @@
 
   <!-- 3 -->
   <section>
-    <h2>3. 시스템 프롬프트 <span class="tag">.system()</span></h2>
+    <h2>3. 시스템 프롬프트 <span class="tag">.system()</span><span class="tag">문서 §1</span></h2>
     <p class="desc">페르소나(말투·역할)를 지정합니다. 여기선 "해적처럼 말하는" 챗봇.</p>
     <pre class="code">.system("너는 해적처럼 말한다").user(msg)</pre>
     <textarea id="persona-in">오늘 기분 어때?</textarea>
@@ -104,7 +105,7 @@
 
   <!-- 4 -->
   <section>
-    <h2>4. Structured Output <span class="tag">.entity()</span></h2>
+    <h2>4. Structured Output <span class="tag">.entity()</span><span class="tag">문서 §2</span></h2>
     <p class="desc">텍스트가 아니라 타입 객체(JSON)로 받습니다. LLM을 타입 안전한 함수처럼 사용.</p>
     <pre class="code">.call().entity(Movie::class.java)   // {title, year, director}</pre>
     <textarea id="struct-in">SF 영화 하나 추천해줘.</textarea>
@@ -114,7 +115,7 @@
 
   <!-- 5 -->
   <section>
-    <h2>5. 대화 메모리 <span class="tag">ChatMemory</span></h2>
+    <h2>5. 대화 메모리 <span class="tag">ChatMemory</span><span class="tag">문서 §3</span></h2>
     <p class="desc">LLM은 원래 매 호출을 따로 처리해 이전 대화를 <b>기억하지 못합니다.</b> 같은 <b>대화 ID</b>로 보내면 이전 메시지를 함께 넣어줘서 맥락을 기억합니다.</p>
     <p class="desc"><b>확인 방법:</b> ① 버튼 → 전송 (이름 알려주기) → ② 버튼 → 전송 (같은 ID로 이름 되묻기). 기억하면 성공입니다.</p>
     <p class="desc"><b>영속화:</b> 대화는 메모리가 아니라 <b>DB(H2 파일)</b>에 저장됩니다. 앱을 껐다 켠 뒤 ②를 눌러도 이름을 기억합니다. 운영에서는 같은 코드로 저장소만 Postgres·Redis로 바꿉니다.</p>
@@ -137,7 +138,7 @@ MessageWindowChatMemory.builder()      // 정책: 최근 N개만 유지
 
   <!-- 6 -->
   <section>
-    <h2>6. Tool Calling <span class="tag">@Tool</span></h2>
+    <h2>6. Tool Calling <span class="tag">@Tool</span><span class="tag">문서 §4</span></h2>
     <p class="desc">LLM이 우리 함수(getWeather)를 필요할 때 직접 호출합니다. "서울 날씨"를 물으면 도구가 실행됩니다.</p>
     <pre class="code">.tools(WeatherTools())   // @Tool fun getWeather(city)</pre>
     <textarea id="tool-in">서울 날씨 어때?</textarea>
@@ -147,7 +148,7 @@ MessageWindowChatMemory.builder()      // 정책: 최근 N개만 유지
 
   <!-- 7 -->
   <section>
-    <h2>7. RAG <span class="tag">QuestionAnswerAdvisor</span></h2>
+    <h2>7. RAG <span class="tag">QuestionAnswerAdvisor</span><span class="tag">문서 §5</span></h2>
     <p class="desc">사내 문서(환불 정책·영업시간)를 검색해 근거로 답합니다. 시드된 문서: 환불 7일 이내, 영업 평일 09~18시.</p>
     <pre class="code">.advisors(QuestionAnswerAdvisor.builder(vectorStore).build())</pre>
     <textarea id="rag-in">우리 환불 정책이 뭐야?</textarea>
@@ -157,7 +158,7 @@ MessageWindowChatMemory.builder()      // 정책: 최근 N개만 유지
 
   <!-- 8 -->
   <section>
-    <h2>8. ToolSearch <span class="tag">ToolSearchToolCallingAdvisor</span></h2>
+    <h2>8. ToolSearch <span class="tag">ToolSearchToolCallingAdvisor</span><span class="tag">문서 §6</span></h2>
     <p class="desc">도구가 여러 개(날씨·덧셈·주문조회·시간)일 때, 질문에 맞는 것만 골라 LLM에 노출합니다.</p>
     <p class="desc">전송하면 <b>availableTools</b>에 후보 도구 전체가, <b>reply</b>에 그중 실제로 쓰인 결과가 표시됩니다.</p>
     <pre class="code">.advisors(toolSearchAdvisor).tools(ManyTools())</pre>
@@ -168,18 +169,22 @@ MessageWindowChatMemory.builder()      // 정책: 최근 N개만 유지
 
   <!-- 9 -->
   <section>
-    <h2>9. 토큰 사용량 <span class="tag">관측성 · Usage</span></h2>
-    <p class="desc">LLM은 <b>토큰 단위로 과금</b>됩니다. 그래서 호출이 토큰을 얼마나 썼는지 추적하는 게 중요합니다. 응답의 <code>content()</code> 대신 <code>chatResponse()</code>로 받으면 메타데이터에서 토큰 수를 읽을 수 있습니다(운영에선 Micrometer로 대시보드화).</p>
+    <h2>9. 토큰 사용량 <span class="tag">관측성 · Usage</span><span class="tag">문서 §9</span></h2>
+    <p class="desc">LLM은 <b>토큰 단위로 과금</b>됩니다. 그래서 호출이 토큰을 얼마나 썼는지 추적하는 게 중요합니다. 응답의 <code>content()</code> 대신 <code>chatResponse()</code>로 받으면 메타데이터에서 토큰 수를 읽을 수 있습니다.</p>
     <pre class="code">response.metadata.usage.totalTokens</pre>
-    <p class="desc">전송하면 응답과 함께 <b>promptTokens</b>(입력), <b>completionTokens</b>(출력), <b>totalTokens</b>(합계)가 표시됩니다.</p>
+    <p class="desc">전송하면 응답과 함께 <b>promptTokens</b>(입력), <b>completionTokens</b>(출력), <b>totalTokens</b>(합계)가 표시됩니다. 서버 콘솔에는 모델에 나간 <b>프롬프트 전문</b>도 찍힙니다(<code>log-prompt</code> — RAG·메모리가 프롬프트를 어떻게 바꿨는지 여기서 보입니다).</p>
     <textarea id="obs-in">스프링이 뭔지 한 문장으로 설명해줘.</textarea>
     <button data-post="/api/observability/chat" data-in="obs-in" data-out="obs-out">전송</button>
     <div class="out" id="obs-out"></div>
+    <p class="desc" style="margin-top:.75rem">호출 단위 조회와 별개로, <b>Micrometer</b>는 모든 호출의 토큰을 지표로 누적합니다(임베딩 포함). actuator 엔드포인트를 그대로 조회해 봅니다.</p>
+    <pre class="code">GET /actuator/metrics/gen_ai.client.token.usage</pre>
+    <button data-get="/actuator/metrics/gen_ai.client.token.usage" data-out="obs-metric-out">누적 지표 조회</button>
+    <div class="out" id="obs-metric-out"></div>
   </section>
 
   <!-- 10 -->
   <section>
-    <h2>10. 커스텀 Advisor <span class="tag">BaseAdvisor</span></h2>
+    <h2>10. 커스텀 Advisor <span class="tag">BaseAdvisor</span><span class="tag">문서 §8</span></h2>
     <p class="desc">앞의 RAG·메모리·ToolSearch가 모두 <b>Advisor</b>였습니다. 직접 만들 수도 있습니다. <code>BaseAdvisor</code>를 구현하고 <code>before</code>(요청)/<code>after</code>(응답)만 채우면 됩니다 — <code>HandlerInterceptor</code>와 같은 자리입니다.</p>
     <p class="desc">여기서는 <b>카드번호를 마스킹해서 LLM에 보내는 가드레일</b>입니다. 아래 <b>모델이 실제로 받은 문장</b>을 보면 번호가 가려진 채 나간 것을 확인할 수 있습니다.</p>
     <pre class="code">class PiiMaskingAdvisor : BaseAdvisor {
@@ -245,11 +250,24 @@ MessageWindowChatMemory.builder()      // 정책: 최근 N개만 유지
     };
   }
 
+  /** GET 조회 (actuator 지표 등). 응답 JSON 전체를 보여준다. */
+  async function get(btn) {
+    const out = btn.dataset.out;
+    setBusy(out);
+    try {
+      const res = await fetch(btn.dataset.get);
+      setText(out, JSON.stringify(await res.json(), null, 2));
+    } catch (e) {
+      setText(out, '오류: ' + e.message);
+    }
+  }
+
   /** 버튼 동작은 전부 data-* 로 선언한다. 마크업에 스크립트를 두지 않기 위함. */
   document.addEventListener('click', e => {
     const btn = e.target.closest('button');
     if (!btn) return;
     if (btn.dataset.post) send(btn);
+    else if (btn.dataset.get) get(btn);
     else if (btn.dataset.stream) stream(btn);
     else if (btn.dataset.fill) $(btn.dataset.fill).value = btn.dataset.text;
   });

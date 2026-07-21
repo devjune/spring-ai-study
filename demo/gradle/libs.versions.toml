@@ -15,6 +15,7 @@ spring-dependency-management = { id = "io.spring.dependency-management", version
 # 버전은 spring-ai-bom / 플러그인이 관리하므로 좌표(module)만 선언한다.
 spring-ai-bom = { module = "org.springframework.ai:spring-ai-bom", version.ref = "springAi" }
 spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web" }
+spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator" }
 spring-ai-starter-model-anthropic = { module = "org.springframework.ai:spring-ai-starter-model-anthropic" }
 spring-ai-starter-model-transformers = { module = "org.springframework.ai:spring-ai-starter-model-transformers" }
 spring-ai-vector-store = { module = "org.springframework.ai:spring-ai-vector-store" }

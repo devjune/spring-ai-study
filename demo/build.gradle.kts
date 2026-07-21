@@ -26,6 +26,9 @@ dependencyManagement {
 
 dependencies {
     implementation(libs.spring.boot.starter.web)
+    // 관측성(9번 데모) — ObservationRegistry 를 만들어 준다.
+    // 이게 없으면 Spring AI 는 NOOP registry 로 폴백해, log-prompt 를 켜도 아무것도 안 찍힌다.
+    implementation(libs.spring.boot.starter.actuator)
     implementation(libs.spring.ai.starter.model.anthropic)
     // RAG용 로컬 임베딩(ONNX) — 추가 API 키 없이 임베딩 생성
     implementation(libs.spring.ai.starter.model.transformers)
