@@ -1,5 +1,6 @@
 [versions]
-kotlin = "2.1.0"
+# 스프링 부트 BOM의 kotlin.version과 일치. 최신(2.4.x)으로 올리면 stdlib이 어긋난다.
+kotlin = "2.2.21"
 springBoot = "4.0.0"
 springDependencyManagement = "1.1.7"
 springAi = "2.0.0"
