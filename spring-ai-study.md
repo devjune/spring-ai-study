@@ -570,16 +570,6 @@ class SupportController(private val supportAgent: ChatClient) {
 | 토큰·캐시 지표     | 벤더별 제각각            | 통합 `Usage` API                              |
 | 벤더           | 변형 다수              | 정리 (예: OpenAI 3종 → 1종)                      |
 
-### 그래서 2.0은 "에이전트 프레임워크"인가
-
-에이전트라는 말이 자주 나오지만, 코어에는 `Agent`라는 이름의 무언가가 없습니다. BOM 2.0.0의 아티팩트 164개 중 이름에 `agent`가 들어간 것은 하나도 없고, 발표문이 소개하는 에이전트 도구들(`spring-ai-agent-utils`, `spring-ai-session`)은 모두 코어 밖 커뮤니티 프로젝트입니다.
-
-> "You could call tools; you could not build on top of tool calling." — [Spring AI 2.0.0 GA 발표](https://spring.io/blog/2026/06/12/spring-ai-2-0-0-GA-available-now)
-
-1.x는 도구 실행 루프가 각 모델 구현 안에 숨어 있었습니다(§4). 2.0은 그 루프를 Advisor 체인으로 꺼냈고, 체인이 재진입을 지원하면서 ToolSearch(§6)와 커스텀 Advisor(§8)가 같은 자리에 얹힙니다.
-
-**바로 앞에서 만든 사내 문서 Q&A 에이전트가 그 결과물입니다** — 프레임워크가 준 것은 조립할 자리이고, 에이전트는 우리가 만들었습니다.
-
 ---
 
 ## 정리 — 백엔드 개발자의 역할
