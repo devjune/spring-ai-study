@@ -27,13 +27,14 @@
 | **사내 문서 Q&A (RAG)** | 회사 문서에 근거해 답하기                  | RAG + VectorStore       |
 | **에이전트**            | LLM이 실제 함수·시스템을 호출해 일을 처리       | Tool Calling            |
 | **도구·서비스 상호운용**     | 외부/타 팀 도구를 표준 프로토콜로 연결          | MCP                     |
+|                     |                                 |                         |
 
 ### 지원 범위
 
 - **모델 종류** — Chat, Embedding, Text-to-Image, Audio Transcription, Text-to-Speech, Moderation.
 - **벤더** — Anthropic, OpenAI, Amazon Bedrock, Google(Gemini/Vertex), Ollama, Mistral, DeepSeek 등.
 - **VectorStore** — pgvector, Redis, Chroma, Qdrant, Elasticsearch, MongoDB Atlas 등 **21종**.
-- **로컬 실행** — `spring-ai-starter-model-transformers`로 임베딩을 로컬 ONNX 모델에서 생성할 수 있습니다(외부 API 키 불필요).
+- **로컬 실행** — `spring-ai-starter-model-transformers`로 임베딩을 로컬 ONNX 모델에서 생성할 수 있음 (외부 API 키 불필요).
 
 ---
 
@@ -47,6 +48,7 @@ graph LR
     CC --> CM["ChatModel<br/>(벤더 구현)"]
     CM --> LLM["LLM<br/>Anthropic · OpenAI · Ollama"]
     Adv["Advisor<br/>(RAG · 대화 기억 · 도구)"] -. 끼워 넣는다 .-> CC
+    style CC fill:#ffe08a,stroke:#e0a800,stroke-width:2px
 ```
 
 **1. 내가 만지는 것은 `ChatClient` 하나입니다.** 이 문서의 모든 예제가 `chatClient.prompt()...`로 시작합니다.
@@ -392,6 +394,7 @@ graph LR
     P --> S1["우리 팀 서비스<br/>(MCP Server)"]
     P --> S2["옆 팀 서비스<br/>(MCP Server)"]
     P --> S3["외부 SaaS<br/>(MCP Server)"]
+    style P fill:#ffe08a,stroke:#e0a800,stroke-width:2px
 ```
 
 Spring AI 2.0은 MCP를 1급으로 지원합니다.
@@ -447,6 +450,10 @@ graph LR
     LLM --> B2["Advisor 2<br/>after"]
     B2 --> B1["Advisor 1<br/>after"]
     B1 --> Res["응답"]
+    style A1 fill:#ffe08a,stroke:#e0a800,stroke-width:2px
+    style A2 fill:#ffe08a,stroke:#e0a800,stroke-width:2px
+    style B2 fill:#ffe08a,stroke:#e0a800,stroke-width:2px
+    style B1 fill:#ffe08a,stroke:#e0a800,stroke-width:2px
 ```
 
 `BaseAdvisor`를 구현하면 `before`/`after` 두 개만 채우면 됩니다.
