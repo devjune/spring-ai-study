@@ -8,7 +8,7 @@
 
 **Java/Spring 생태계에서 AI 모델을 통합하는 표준 추상화입니다.** Python 진영의 LangChain에 대응합니다.
 
-엔터프라이즈 백엔드는 여전히 Java/Spring 위에서 동작하고, Spring AI는 그 위에서 Spring 방식으로 AI를 통합합니다. 핵심 철학은 **이식성**입니다 — OpenAI든 Anthropic이든 로컬 Ollama든, 코드는 그대로 두고 의존성·설정만 바꿔 모델을 교체할 수 있습니다. `JdbcTemplate`이 DB 벤더를 추상화하던 발상과 같습니다.
+엔터프라이즈 백엔드는 여전히 Java/Spring 위에서 동작하고 Spring AI는 그 위에서 Spring 방식으로 AI를 통합합니다. 핵심 철학은 **이식성**입니다 — OpenAI든 Anthropic이든 로컬 Ollama든, 코드는 그대로 두고 의존성·설정만 바꿔 모델을 교체할 수 있습니다. `JdbcTemplate`이 DB 벤더를 추상화하던 발상과 같습니다.
 
 ### 1.x에서 2.0으로
 
@@ -16,7 +16,7 @@
 - **1.1 (2025-11)** — 안정화, Advisor 체계 정비.
 - **2.0 (2026-06)** — Spring Boot 4로 토대를 다시 세운 릴리스. Tool Calling 정리, ToolSearch, MCP 편입.
 
-이 문서는 **2.0만 기준으로** 설명합니다. 1.x를 몰라도 읽는 데 지장이 없고, 기존 코드를 올려야 하는 경우에 필요한 변경점은 마지막 "1.x → 2.0 한눈에" 절에 모아 두었습니다.
+이 문서는 **2.0만 기준으로** 설명합니다. 1.x를 몰라도 읽는 데 지장이 없습니다. 기존 코드를 올려야 하는 경우에 필요한 변경점은 마지막 "1.x → 2.0 한눈에" 절에 모아 두었습니다.
 
 ---
 
@@ -53,7 +53,7 @@ graph LR
 
 **1. 내가 만지는 것은 `ChatClient` 하나입니다.** 이 문서의 모든 예제가 `chatClient.prompt()...`로 시작합니다.
 
-**2. 벤더는 그 아래 `ChatModel`이 감춥니다.** 벤더를 바꾼다는 것은 이 구현체가 바뀐다는 뜻이고, 위의 호출 코드는 그대로입니다. 앞서 든 `JdbcTemplate` 비유가 여기입니다 — 인터페이스는 두고 드라이버만 갑니다.
+**2. 벤더는 그 아래 `ChatModel`이 감춥니다.** 벤더를 바꾼다는 것은 이 구현체가 바뀐다는 뜻이고 위의 호출 코드는 그대로입니다. 앞서 든 `JdbcTemplate` 비유가 여기입니다 — 인터페이스는 두고 드라이버만 갑니다.
 
 **3. 기능은 `Advisor`로 끼워 넣습니다.** RAG도 대화 기억도 도구 호출도 전부 `ChatClient` 호출을 가로채는 Advisor입니다. 서블릿 필터나 `HandlerInterceptor`와 같은 자리라고 보면 됩니다.
 
@@ -108,7 +108,7 @@ class ChatController(builder: ChatClient.Builder) {
 | OpenAI | `spring-ai-starter-model-openai` | `spring.ai.openai.api-key=...`<br>`spring.ai.openai.chat.model=gpt-5` |
 | Ollama | `spring-ai-starter-model-ollama` | `spring.ai.ollama.chat.model=llama3.2` |
 
-Ollama만 API 키가 없습니다. 로컬에서 모델을 직접 돌리므로, 외부망이 막힌 환경의 선택지입니다.
+Ollama만 API 키가 없습니다. 로컬에서 모델을 직접 돌리므로 외부망이 막힌 환경의 선택지입니다.
 
 ---
 
@@ -136,7 +136,7 @@ val movie: Movie? = chatClient.prompt().user(msg).call().entity(Movie::class.jav
 
 > `.call()` 자체는 모델을 호출하지 않습니다. `.content()` / `.chatResponse()` / `.entity()`를 호출하는 순간 실제 요청이 나갑니다.
 
-**세 메서드 모두 nullable입니다.** 2.0이 JSpecify로 널 안전성을 API에 명시(`@Nullable`)한 결과이고, 널 처리는 호출부 책임입니다(`?: ""` 또는 `?: error(...)`).
+**세 메서드 모두 nullable입니다.** 2.0이 JSpecify로 널 안전성을 API에 명시(`@Nullable`)한 결과입니다. 널 처리는 호출부 책임입니다(`?: ""` 또는 `?: error(...)`).
 
 #### 스트리밍
 
@@ -157,7 +157,7 @@ fun stream(@RequestParam message: String): Flux<String> =
 - **WebFlux가 필수는 아닙니다.** Spring MVC도 리액티브 반환 타입을 처리하므로 `spring-boot-starter-web`만으로 동작합니다.
 - 브라우저 쪽은 `EventSource`로 받습니다.
 
-> 스트리밍에는 제약이 따릅니다. `.entity()`(Structured Output)처럼 응답 전체가 모여야 성립하는 기능은 함께 쓸 수 없고, 토큰 사용량 같은 메타데이터도 스트림이 끝나야 확정됩니다.
+> 스트리밍에는 제약이 따릅니다. `.entity()`(Structured Output)처럼 응답 전체가 모여야 성립하는 기능은 함께 쓸 수 없습니다. 토큰 사용량 같은 메타데이터도 스트림이 끝나야 확정됩니다.
 
 #### 시스템 프롬프트 (페르소나)
 
@@ -185,7 +185,7 @@ val movie: Movie = chatClient.prompt()
     ?: error("Failed to convert model response to Movie")
 ```
 
-- 내부 동작: data class로 **JSON 스키마를 만들어 요청에 함께 보내고**("이 형식으로만 답하라"는 지시와 함께), **LLM이 처음부터 JSON으로 답하면**, `BeanOutputConverter`가 역직렬화합니다. 응답 텍스트에서 필드를 뽑아내는 게 아니라, 애초에 그 형식으로 달라고 시키는 방식입니다.
+- 내부 동작: data class로 **JSON 스키마를 만들어 요청에 함께 보내고**("이 형식으로만 답하라"는 지시와 함께), **LLM이 처음부터 JSON으로 답하면** `BeanOutputConverter`가 역직렬화합니다. 응답 텍스트에서 필드를 뽑아내는 게 아니라 애초에 그 형식으로 달라고 시키는 방식입니다.
 - 컬렉션은 `entity(object : ParameterizedTypeReference<List<Movie>>() {})`로 받습니다.
 - `.entity()` 자체는 재시도하지 않습니다. 재시도는 `StructuredOutputValidationAdvisor`가 별도로 담당합니다.
 
@@ -209,11 +209,11 @@ chatClient.prompt()
     .content()
 ```
 
-> 대화 ID는 **호출 시점에** 넘겨야 합니다. 빌더에 미리 박아둘 수 없고, 누락하면 예외가 납니다.
+> 대화 ID는 **호출 시점에** 넘겨야 합니다. 빌더에 미리 박아둘 수 없고 누락하면 예외가 납니다.
 
 #### 대화를 어디에 저장할 것인가
 
-위 예제의 `MessageWindowChatMemory`는 기본적으로 **메모리에만** 담습니다. 서버를 재시작하면 대화가 사라지고, 인스턴스를 2대로 늘리면 어느 서버로 붙느냐에 따라 맥락이 갈립니다. 운영에서는 저장소를 붙여야 합니다.
+위 예제의 `MessageWindowChatMemory`는 기본적으로 **메모리에만** 담습니다. 서버를 재시작하면 대화가 사라집니다. 인스턴스를 2대로 늘리면 어느 서버로 붙느냐에 따라 맥락이 갈립니다. 운영에서는 저장소를 붙여야 합니다.
 
 역할이 둘로 나뉘어 있습니다.
 
@@ -239,7 +239,7 @@ spring.datasource.url=jdbc:postgresql://localhost:5432/app
 spring.ai.chat.memory.repository.jdbc.initialize-schema=always
 ```
 
-JDBC 저장소는 플랫폼별 스키마(postgresql, mysql, mariadb, oracle, sqlserver, h2 등)를 내장하고 있고, `initialize-schema` 같은 **기존 Boot의 스키마 초기화 방식을 그대로** 씁니다. 애플리케이션의 `DataSource`를 공유하는 구조입니다.
+JDBC 저장소는 플랫폼별 스키마(postgresql, mysql, mariadb, oracle, sqlserver, h2 등)를 내장하고 있고 `initialize-schema` 같은 **기존 Boot의 스키마 초기화 방식을 그대로** 씁니다. 애플리케이션의 `DataSource`를 공유하는 구조입니다.
 
 > 데모 앱은 설치 없이 실행되도록 같은 JDBC 저장소를 H2 파일 모드(`jdbc:h2:file:./data/chatmemory`)로 씁니다. 앱을 재시작해도 대화가 유지되는 것을 확인할 수 있습니다.
 
@@ -401,7 +401,7 @@ class CalculatorTools {
 
 **RAG, 대화 메모리, ToolSearch는 모두 Advisor였습니다.** `QuestionAnswerAdvisor`, `MessageChatMemoryAdvisor`, `ToolSearchToolCallingAdvisor` — 앞에서 `.advisors(...)`로 붙인 것들이 전부 같은 확장점입니다. 직접 만들 수도 있습니다.
 
-큰 그림에서 서블릿 필터에 빗댄 그 자리입니다. Advisor는 `ChatClient` 호출을 가로채는 체인이고, 요청이 모델로 나가기 전과 응답이 돌아온 후에 개입합니다.
+큰 그림에서 서블릿 필터에 빗댄 그 자리입니다. Advisor는 `ChatClient` 호출을 가로채는 체인입니다. 요청이 모델로 나가기 전과 응답이 돌아온 후에 개입합니다.
 
 ```mermaid
 graph LR
@@ -450,11 +450,11 @@ chatClient.prompt()
 - **컨텍스트** — `ChatClientRequest`/`ChatClientResponse`는 `context` 맵을 함께 나릅니다. Advisor가 남긴 값을 호출부에서 `chatClientResponse().context()`로 읽을 수 있습니다.
 - **기본 제공** — `SimpleLoggerAdvisor`는 요청·응답을 로그로 남깁니다(DEBUG). 별도 구현 없이 붙이기만 하면 됩니다.
 
-이 확장점이 있는 덕분에, 감사 로그·마스킹·비용 측정·금칙어 필터 같은 **횡단 관심사를 비즈니스 코드 밖에서** 처리할 수 있습니다. 문서 마지막에서 이야기하는 "가드레일"이 실제로 구현되는 자리이기도 합니다.
+이 확장점이 있는 덕분에 감사 로그·마스킹·비용 측정·금칙어 필터 같은 **횡단 관심사를 비즈니스 코드 밖에서** 처리할 수 있습니다. 문서 마지막에서 이야기하는 "가드레일"이 실제로 구현되는 자리이기도 합니다.
 
 ### 9. 관측성
 
-**LLM은 토큰 단위로 과금됩니다.** 호출 한 번의 비용이 입력·출력 길이에 따라 달라지므로, 사용량 추적은 선택이 아니라 운영 요건입니다.
+**LLM은 토큰 단위로 과금됩니다.** 호출 한 번의 비용이 입력·출력 길이에 따라 달라지므로 사용량 추적은 선택이 아니라 운영 요건입니다.
 
 읽는 방법은 두 가지입니다. 호출 단위로 직접 읽거나, Micrometer 지표로 모으거나.
 
@@ -477,7 +477,7 @@ usage.cacheReadInputTokens        // 캐시로 읽은 토큰 (2.0 통합 지표)
 
 #### 지표로 모으기
 
-`ChatObservationAutoConfiguration`이 Micrometer Observation을 자동 구성합니다. `MeterRegistry` 빈이 있으면(actuator를 넣으면) `ChatModelMeterObservationHandler`가 호출별 토큰 사용량과 소요 시간을 지표로 기록하므로, 대시보드·알림은 기존 Micrometer 파이프라인을 그대로 씁니다.
+`ChatObservationAutoConfiguration`이 Micrometer Observation을 자동 구성합니다. `MeterRegistry` 빈이 있으면(actuator를 넣으면) `ChatModelMeterObservationHandler`가 호출별 토큰 사용량과 소요 시간을 지표로 기록합니다. 대시보드·알림은 기존 Micrometer 파이프라인을 그대로 씁니다.
 
 프롬프트와 응답 본문은 기본적으로 로그에 남지 않습니다. 필요할 때만 켭니다.
 
@@ -488,7 +488,7 @@ spring.ai.chat.observations.log-completion=true   # 기본 false
 
 켜면 `ChatModelPromptContentObservationHandler`가 모델에 나간 프롬프트 전문을 INFO로 찍습니다. RAG가 끼워넣은 검색 문서, 메모리가 붙인 과거 대화가 여기서 그대로 보이므로 데모·디버깅에 특히 유용합니다. 데모 앱은 actuator와 함께 이 두 옵션을 켜 둡니다.
 
-> **actuator가 전제입니다.** 없이 프로퍼티만 켜면 NOOP registry로 폴백해, 오류 없이 조용히 아무것도 찍히지 않습니다.
+> **actuator가 전제입니다.** 없이 프로퍼티만 켜면 NOOP registry로 폴백해 오류 없이 조용히 아무것도 찍히지 않습니다.
 
 > 프롬프트·응답 전문에는 개인정보나 사내 문서가 그대로 남을 수 있으므로 운영 환경에서는 신중해야 합니다. 기본값이 `false`인 이유이기도 합니다.
 
@@ -547,9 +547,9 @@ class SupportController(private val supportAgent: ChatClient) {
 
 1. **모델 호출 전** — 메모리가 이전 대화를 붙이고("지난주 주문"이 무엇인지), RAG가 환불 정책 문서를 검색해 근거로 붙입니다. 둘 다 Advisor라 프롬프트를 채우는 단계입니다.
 2. **모델이 판단** — 정책만으로는 답할 수 없으니 `getOrder(userId)`를 호출해 달라고 요청합니다.
-3. **앱이 실행 → 재호출** — 도구 결과를 붙여 다시 물으면, 모델이 정책과 실제 주문 데이터를 함께 근거로 답을 만듭니다.
+3. **앱이 실행 → 재호출** — 도구 결과를 붙여 다시 물으면 모델이 정책과 실제 주문 데이터를 함께 근거로 답을 만듭니다.
 
-개발자가 만드는 것은 검증된 도구와 신뢰할 수 있는 지식이고, 그것들을 언제 어떻게 조합할지는 LLM이 정합니다.
+개발자가 만드는 것은 검증된 도구와 신뢰할 수 있는 지식이고 그것들을 언제 어떻게 조합할지는 LLM이 정합니다.
 
 ---
 
@@ -574,7 +574,7 @@ AI를 도입하면 백엔드 개발자는 더 이상 모든 분기를 직접 작
 
 - **검증된 도구를 만든다** — LLM이 호출할 안전한 함수(`@Tool`), 필요하면 `@McpTool`로 표준 노출까지.
 - **지식을 공급한다** — RAG로 신뢰할 수 있는 데이터를 주입.
-- **가드레일을 친다** — 위험 작업은 도구로 만들지 않거나, 노출을 통제(ToolSearch)하거나, 사람 승인(human-in-the-loop)을 끼운다.
+- **가드레일을 친다** — 위험 작업은 도구로 만들지 않거나 노출을 통제(ToolSearch)하거나 사람 승인(human-in-the-loop)을 끼운다.
 - **출력을 검증한다** — LLM 출력을 외부 입력처럼 다룬다.
 
 네 가지는 결국 같은 질문입니다 — **어디까지 맡기고, 어디에 선을 그을 것인가.** LLM이 오케스트레이터라면 백엔드는 그것이 움직일 **범위와 규칙**을 정합니다. 에이전트가 커질수록 답하기 어려워집니다.
