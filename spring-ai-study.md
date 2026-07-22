@@ -1,14 +1,12 @@
 # Spring AI 2.0 — 개념부터 에이전트까지
 
----
-
 ## 들어가며
 
 ### Spring AI란
 
 **Java/Spring 생태계에서 AI 모델을 통합하는 표준 추상화입니다.** Python 진영의 LangChain에 대응합니다.
 
-엔터프라이즈 백엔드는 여전히 Java/Spring 위에서 동작하고 Spring AI는 그 위에서 Spring 방식으로 AI를 통합합니다. 핵심 철학은 **이식성**입니다 — OpenAI든 Anthropic이든 로컬 Ollama든, 코드는 그대로 두고 의존성·설정만 바꿔 모델을 교체할 수 있습니다. `JdbcTemplate`이 DB 벤더를 추상화하던 발상과 같습니다.
+엔터프라이즈 백엔드는 여전히 Java/Spring 위에서 동작합니다. Spring AI는 그 위에서 Spring 방식으로 AI를 통합합니다. 핵심 철학은 **이식성**입니다 — OpenAI든 Anthropic이든 로컬 Ollama든, 코드는 그대로 두고 의존성·설정만 바꿔 모델을 교체할 수 있습니다. `JdbcTemplate`이 DB 벤더를 추상화하던 발상과 같습니다.
 
 ### 1.x에서 2.0으로
 
