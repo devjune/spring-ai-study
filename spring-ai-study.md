@@ -295,7 +295,7 @@ chatClient.prompt()
 
 ### 5. RAG — 회사 내부 문서에 근거해 답하기
 
-**LLM은 특정 조직의 내부 문서를 알지 못합니다.** 내부 정책을 물으면 사실과 다른 내용을 생성합니다(할루시네이션). RAG는 답하기 전에 관련 문서를 검색해 프롬프트에 끼워 넣는 방식으로, 모델은 그대로 두고 지식만 주입합니다.
+**LLM은 특정 조직의 내부 문서를 알지 못합니다.** 내부 정책을 물으면 사실과 다른 내용을 생성합니다(할루시네이션). RAG는 답하기 전에 관련 문서를 검색해 프롬프트에 끼워 넣습니다. 모델은 그대로 두고 지식만 주입하는 방식입니다.
 
 - **Retrieve(검색)** — 질문과 의미가 가까운 문서를 `VectorStore`에서 찾습니다.
 - **Augment(증강)** — 찾은 문서를 질문과 함께 프롬프트에 붙입니다.
@@ -328,19 +328,19 @@ vectorStore.add(documents)                    // 문서 저장 (임베딩 자동
 vectorStore.similaritySearch("환불 정책")       // 의미가 가까운 문서 top-N 검색
 ```
 
-실제 저장소(pgvector, Redis, Chroma 등)는 구현체를 갈아 끼우는 식이라, 어느 것을 쓰든 앱 코드는 그대로입니다. 스타터만 추가하면 됩니다(`spring-ai-starter-vector-store-pgvector` 등).
+실제 저장소(pgvector, Redis, Chroma 등)는 구현체를 갈아 끼우는 식이라 어느 것을 쓰든 앱 코드는 그대로입니다. 스타터만 추가하면 됩니다(`spring-ai-starter-vector-store-pgvector` 등).
 
 #### 임베딩 모델 — 기본값은 어디서 오나
 
 `vectorStore.add(documents)`가 임베딩을 "자동 생성"한다고 했는데, 그 벡터를 만드는 모델은 무엇일까요? **Spring AI에 전역 기본 임베딩 모델이 따로 있는 게 아니라, 클래스패스에 올라온 model 스타터가 정합니다.**
 
-데모는 `spring-ai-starter-model-transformers`를 넣어 `TransformersEmbeddingModel`(기본 모델 `all-MiniLM-L6-v2`)을 자동 구성합니다. ONNX 모델을 앱 안에서 직접 돌리므로 **Anthropic 외 추가 API 키가 필요 없고**, 첫 기동에만 모델을 내려받아 로컬에 캐시합니다. 모델·캐시 위치는 `spring.ai.embedding.transformer.*`로 바꿉니다.
+데모는 `spring-ai-starter-model-transformers`를 넣어 `TransformersEmbeddingModel`(기본 모델 `all-MiniLM-L6-v2`)을 자동 구성합니다. ONNX 모델을 앱 안에서 직접 돌리므로 **Anthropic 외 추가 API 키가 필요 없고** 첫 기동에만 모델을 내려받아 로컬에 캐시합니다. 모델·캐시 위치는 `spring.ai.embedding.transformer.*`로 바꿉니다.
 
 > **RAG = 모델 재학습 없이 지식만 실시간 주입.** 파인튜닝보다 싸고 빠르며, 문서가 바뀌면 DB만 갱신하면 됩니다.
 
 ### 6. ToolSearch — 도구가 수백 개일 때 (2.0 신규)
 
-**도구가 수백 개여도, 질문에 맞는 것만 골라 노출합니다.** 도구를 전부 프롬프트에 넣으면 토큰이 커지고 LLM의 선택 정확도가 떨어집니다. 2.0의 `ToolSearchToolCallingAdvisor`는 이 문제를 점진적 노출(progressive tool disclosure)로 풉니다.
+**도구가 수백 개여도 질문에 맞는 것만 골라 노출합니다.** 도구를 전부 프롬프트에 넣으면 토큰이 커지고 LLM의 선택 정확도가 떨어집니다. 2.0의 `ToolSearchToolCallingAdvisor`는 이 문제를 점진적 노출(progressive tool disclosure)로 풉니다.
 
 Advisor를 직접 구성해 필요한 호출에만 붙입니다. 부품 두 개만 주면 됩니다 — **도구를 어떻게 찾을지**(`ToolIndex`: 정규식·Lucene·벡터 중 택1)와 **찾은 도구를 실행할 것**(`ToolCallingManager`, §4에서 본 그 실행 루프).
 
@@ -360,15 +360,15 @@ chatClient.prompt()
     .content()
 ```
 
-RAG가 문서를 검색해 주입하듯, 도구를 검색해 주입하는 셈입니다.
+RAG가 문서를 검색해 주입하듯 도구를 검색해 주입하는 셈입니다.
 
-`spring.ai.chat.client.tool-search-advisor.enabled=true` 프로퍼티로 자동 구성하는 경로도 있지만, 2.0.0 기준으로 적용 범위가 전역이고 starter가 BOM에 없는 등 제약이 있어 이 문서는 수동 구성을 권합니다.
+`spring.ai.chat.client.tool-search-advisor.enabled=true` 프로퍼티로 자동 구성하는 경로도 있습니다. 다만 2.0.0 기준으로 적용 범위가 전역이고 starter가 BOM에 없는 등 제약이 있어 이 문서는 수동 구성을 권합니다.
 
 ### 7. MCP — 도구의 상호운용 표준 (2.0 핵심)
 
 **애플리케이션 밖에 흩어진 도구까지 표준 프로토콜로 연결합니다.**
 
-앞에서 다룬 도구는 모두 애플리케이션 내부 함수였습니다. 실제 도구는 여러 곳에 흩어져 있습니다(자체 서비스, 다른 팀 서비스, 외부 SaaS). MCP(Model Context Protocol)는 도구·리소스·프롬프트를 노출하는 표준 프로토콜로, 규격만 맞추면 제공자·소비자가 서로의 구현을 몰라도 연결됩니다.
+앞에서 다룬 도구는 모두 애플리케이션 내부 함수였습니다. 실제 도구는 여러 곳에 흩어져 있습니다(자체 서비스, 다른 팀 서비스, 외부 SaaS). MCP(Model Context Protocol)는 도구·리소스·프롬프트를 노출하는 표준 프로토콜입니다. 규격만 맞추면 제공자·소비자가 서로의 구현을 몰라도 연결됩니다.
 
 ```mermaid
 graph LR
@@ -380,9 +380,9 @@ graph LR
 
 Spring AI 2.0은 MCP를 1급으로 지원합니다.
 
-- **서버 애노테이션** — `@McpTool` / `@McpResource` / `@McpPrompt` / `@McpComplete`. `@Tool`처럼 선언만 하면 함수가 MCP 서버로 노출되고, JSON 스키마는 자동 생성됩니다.
+- **서버 애노테이션** — `@McpTool` / `@McpResource` / `@McpPrompt` / `@McpComplete`. `@Tool`처럼 선언만 하면 함수가 MCP 서버로 노출되고 JSON 스키마는 자동 생성됩니다.
 - **클라이언트** — 다른 곳에서 만든 MCP 서버를 내 에이전트의 도구로 가져다 씁니다.
-- **전송 내장** — WebMVC/WebFlux 전송이 Spring AI에 들어 있어 별도 SDK 의존성이 필요 없습니다. 기본 전송은 Streamable HTTP이고, 로컬 프로세스끼리 붙일 때 쓰는 STDIO도 그대로 있습니다.
+- **전송 내장** — WebMVC/WebFlux 전송이 Spring AI에 들어 있어 별도 SDK 의존성이 필요 없습니다. 기본 전송은 Streamable HTTP입니다. 로컬 프로세스끼리 붙일 때 쓰는 STDIO도 그대로 있습니다.
 
 ```kotlin
 @Component
