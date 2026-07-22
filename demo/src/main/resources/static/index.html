@@ -195,6 +195,28 @@ MessageWindowChatMemory.builder()      // 정책: 최근 N개만 유지
     <button data-post="/api/advisor/chat" data-in="adv-in" data-out="adv-out">전송</button>
     <div class="out" id="adv-out"></div>
   </section>
+
+  <!-- 11 -->
+  <section>
+    <h2>11. 사내 문서 Q&amp;A 에이전트 <span class="tag">RAG+메모리+Tool</span><span class="tag">직접 만들어 보기</span></h2>
+    <p class="desc">앞의 부품을 <b>하나의 ChatClient</b>에 결합하면 에이전트가 됩니다. RAG(환불 정책 근거)·메모리(대화 맥락)·도구(<code>getOrder</code> 실제 주문 조회)가 한 번의 대화에서 함께 동작합니다.</p>
+    <p class="desc"><b>확인 방법(2턴):</b> ① 버튼 → 전송 (주문 맥락 심기) → ② 버튼 → 전송 (같은 ID로 "그거 환불돼요?"). "그거"를 이전 주문으로 잇고(메모리), 환불 정책을 검색하고(RAG), 실제 주문 상태를 조회해(Tool) 종합한 답이 나오면 성공입니다.</p>
+    <pre class="code">builder
+    .defaultSystem("너는 사내 고객지원 상담원이다. 문서에 근거해 답하라.")
+    .defaultAdvisors(QuestionAnswerAdvisor..., MessageChatMemoryAdvisor...)  // RAG + 메모리
+    .defaultTools(OrderTools())                                             // 실제 주문 조회
+    .build()</pre>
+    <label>대화 ID (①②를 같은 값으로)</label>
+    <input id="agent-id" value="support-1">
+    <label>메시지</label>
+    <textarea id="agent-in">내 아이디는 jun 이고, 지난주에 주문한 게 있어요.</textarea>
+    <div>
+      <button data-fill="agent-in" data-text="내 아이디는 jun 이고, 지난주에 주문한 게 있어요.">① 주문 맥락 심기</button>
+      <button data-fill="agent-in" data-text="그거 환불돼요?">② 그거 환불돼요?</button>
+    </div>
+    <button data-post="/api/agent/chat" data-in="agent-in" data-conv="agent-id" data-out="agent-out" data-field="reply">전송</button>
+    <div class="out" id="agent-out"></div>
+  </section>
 </main>
 
 <script>

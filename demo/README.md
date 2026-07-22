@@ -43,7 +43,8 @@ com.example.demo
 ├── ch06_toolsearch/    ToolSearchToolCallingAdvisor (ManyTools)
 ├── ch07_observability/ 토큰 사용량 메타데이터
 ├── ch08_advisor/       커스텀 Advisor (BaseAdvisor) — 카드번호 마스킹 가드레일
-└── ch09_mcp/           @McpTool — 이 앱을 MCP 서버로 노출
+├── ch09_mcp/           @McpTool — 이 앱을 MCP 서버로 노출
+└── ch10_agent/         supportAgent — RAG+메모리+Tool 결합 (직접 만들어 보기)
 ```
 
 ## 데모 ↔ 문서 예제 매핑
@@ -60,12 +61,14 @@ com.example.demo
 | 8. ToolSearch | `POST /api/toolsearch/chat` | `ToolSearchToolCallingAdvisor` |
 | 9. 관측성 | `POST /api/observability/chat` | 토큰 사용량 메타데이터 |
 | 10. 커스텀 Advisor | `POST /api/advisor/chat` | `BaseAdvisor` (before/after) |
+| 11. 사내 문서 Q&A 에이전트 | `POST /api/agent/chat` | `supportAgent` (RAG+메모리+Tool 결합) |
 
 ## 구현 메모
 
 - **API 키** — `application.properties`에서 `${ANTHROPIC_API_KEY}`로 주입. 하드코딩 없음.
 - **RAG 임베딩** — 로컬 ONNX(`spring-ai-starter-model-transformers`). 사내 문서 3건(환불 정책·영업시간)을 인메모리 `SimpleVectorStore`에 시드.
 - **대화 메모리 영속화** — `spring-ai-starter-model-chat-memory-repository-jdbc` + H2 **파일** 모드(`./data/chatmemory`). 도커 없이 실행하려고 H2를 썼고, 운영이라면 같은 코드에 Postgres 설정만 바꾸면 된다. 스키마는 starter 내장 `schema-h2.sql`을 `initialize-schema=always`로 생성한다. `data/`는 gitignore 대상.
+- **에이전트(캡스톤)** — `ch10_agent`는 앞 장의 빈(`vectorStore` §5, `chatMemory` §3)을 그대로 주입받아 하나의 `supportAgent` ChatClient로 결합한다. 새로 만든 것은 `OrderTools`와 빈·컨트롤러뿐이다. 이 앱의 유일한 `ChatClient` 빈이라 컨트롤러가 이름 없이 주입받는다(다른 컨트롤러는 `ChatClient.Builder`에서 각자 build). 메모리 Advisor를 얹었으니 대화 ID가 필수라, UI는 2턴 시나리오로 메모리 기여를 눈에 보이게 한다.
 - **MCP** — 화면 섹션은 이번 스터디에서 제외했다. 다만 서버 코드(`mcp/McpTools.kt`)와 의존성은 남아 있어, 앱은 여전히 `/mcp`로 `add`·`echo`를 노출한다(`@McpTool`). 필요해지면 화면 섹션만 되살리면 된다. 기동 로그의 `McpServerAnnotationScanner...` WARN은 무해한 BeanPostProcessor 경고.
 
 ## 검증 상태
