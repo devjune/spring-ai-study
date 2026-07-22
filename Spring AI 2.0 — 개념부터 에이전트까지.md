@@ -1,5 +1,3 @@
-# Spring AI 2.0 — 개념부터 에이전트까지
-
 ## 들어가며
 
 ### Spring AI란
@@ -633,4 +631,3 @@ AI를 도입하면 백엔드 개발자는 더 이상 모든 분기를 직접 작
 - Spring AI 1.1 GA 블로그: https://spring.io/blog/2025/11/12/spring-ai-1-1-GA-released/
 - 임베딩 모델 `all-MiniLM-L6-v2`: https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2
 
-> 이 자료의 예제는 Anthropic 스타터에 `claude-sonnet-4-5`를 지정해 사용합니다.
