@@ -327,7 +327,31 @@ vectorStore.add(documents)                    // 문서 저장 (임베딩 자동
 vectorStore.similaritySearch("환불 정책")       // 의미가 가까운 문서 top-N 검색
 ```
 
-실제 저장소(pgvector, Redis, Chroma 등)는 구현체를 갈아 끼우는 식이라 어느 것을 쓰든 앱 코드는 그대로입니다. 스타터만 추가하면 됩니다(`spring-ai-starter-vector-store-pgvector` 등).
+실제 저장소(pgvector, Redis, Chroma 등)는 구현체를 갈아 끼우는 식이라 어느 것을 쓰든 앱 코드는 그대로입니다. 스타터만 추가하면 됩니다. (`spring-ai-starter-vector-store-pgvector` 등)
+
+가장 간단한 구현은 별도 설치가 필요 없는 **인메모리 `SimpleVectorStore`** 입니다. `EmbeddingModel`을 주입받아 만들고 문서를 넣어 두면 됩니다.
+
+```kotlin
+@Bean
+fun vectorStore(embeddingModel: EmbeddingModel): VectorStore {
+    val store = SimpleVectorStore.builder(embeddingModel).build()
+    store.add(
+        listOf(
+            Document("환불은 구매 후 7일 이내에 가능합니다. 단순 변심으로 인한 환불은 왕복 배송비를 구매자가 부담합니다."),
+            Document("디지털 상품은 다운로드하거나 사용한 이력이 있으면 환불이 제한됩니다."),
+            Document("고객센터 영업시간은 평일 09시부터 18시까지이며, 주말과 공휴일은 휴무입니다."),
+        ),
+    )
+    return store
+}
+```
+
+여기서는 문서를 문자열로 직접 박았지만, 실제로는 파일에서 읽어 넣는 경우가 많습니다. Spring AI는 소스별 `DocumentReader`를 제공합니다 — `TextReader`(텍스트), `PagePdfDocumentReader`(PDF), `MarkdownDocumentReader`(마크다운), `JsonReader`(JSON). 긴 문서는 `TokenTextSplitter`로 잘라 넣습니다.
+
+```kotlin
+val reader = PagePdfDocumentReader("classpath:/policy.pdf")
+vectorStore.accept(TokenTextSplitter().apply(reader.read()))   // 읽기 → 분할 → 저장
+```
 
 #### 임베딩 모델 — 기본값은 어디서 오나
 
